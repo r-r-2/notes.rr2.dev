@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate research/index.html and learning/index.html listings from slug dirs.
+"""Regenerate research/, learning/, and worklog/ index.html listings from slug dirs.
 
 Usage: update-listings.py [repo-root]  (defaults to cwd)
 """
@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(sys.argv[1]) if len(sys.argv) > 1 else Path.cwd()
 UL_RE = re.compile(r"<ul>.*?</ul>", re.DOTALL)
 TITLE_RE = re.compile(r"<title>(.*?)</title>", re.DOTALL | re.IGNORECASE)
-KINDS = {"research": "report", "learning": "guide"}
+KINDS = {"research": "report", "learning": "guide", "worklog": "entry"}
 
 
 def title_of(page: Path, slug: str) -> str:
