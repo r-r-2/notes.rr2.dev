@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Regenerate research/, learning/, and worklog/ index.html listings from slug dirs.
+"""Regenerate research/, learning/, and worklog/ index.html listings from slug dirs,
+and refresh the per-section item counts on the homepage.
 
 Usage: update-listings.py [repo-root]  (defaults to cwd)
 """
@@ -14,6 +15,14 @@ TITLE_RE = re.compile(r"<title>(.*?)</title>", re.DOTALL | re.IGNORECASE)
 KINDS = {"research": "report", "learning": "guide", "worklog": "entry"}
 
 
+def slug_dirs(base: Path) -> list:
+    if not base.is_dir():
+        return []
+    return sorted(
+        p.name for p in base.iterdir() if p.is_dir() and (p / "index.html").is_file()
+    )
+
+
 def title_of(page: Path, slug: str) -> str:
     m = TITLE_RE.search(page.read_text(encoding="utf-8"))
     if not m:
@@ -24,9 +33,7 @@ def title_of(page: Path, slug: str) -> str:
 def update(name: str) -> bool:
     base = ROOT / name
     kind = KINDS[name]
-    slugs = sorted(
-        p.name for p in base.iterdir() if p.is_dir() and (p / "index.html").is_file()
-    )
+    slugs = slug_dirs(base)
     if slugs:
         items = "\n".join(
             f'  <li><a href="/{name}/{s}/">'
@@ -55,9 +62,29 @@ def update(name: str) -> bool:
     return True
 
 
+def update_home(home: Path) -> bool:
+    text = home.read_text(encoding="utf-8")
+    new = text
+    for name in KINDS:
+        n = len(slug_dirs(ROOT / name))
+        new = re.sub(
+            rf'(<span data-count="{name}">)\d+(</span>)',
+            rf"\g<1>{n}\g<2>",
+            new,
+        )
+    if new == text:
+        print(f"unchanged {home.relative_to(ROOT)}")
+        return False
+    home.write_text(new, encoding="utf-8")
+    print(f"updated   {home.relative_to(ROOT)} (counts)")
+    return True
+
+
 if __name__ == "__main__":
-    changed = False
     for section in KINDS:
         if (ROOT / section / "index.html").is_file():
-            changed |= update(section)
+            update(section)
+    home = ROOT / "index.html"
+    if home.is_file():
+        update_home(home)
     sys.exit(0)

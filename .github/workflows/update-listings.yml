@@ -50,6 +50,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add research/index.html learning/index.html worklog/index.html
-          git diff --cached --quiet || git commit -m "auto: regenerate research/learning/worklog listings"
+          git add research/index.html learning/index.html worklog/index.html index.html
+          git diff --cached --quiet || git commit -m "auto: regenerate listings and homepage counts"
           git push
