@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rr2.dev: GoDaddy → Cloudflare migration — notes.rr2.dev</title>
+<meta name="description" content="Migrated rr2.dev's DNS and registration from GoDaddy/Netlify to Cloudflare with zero downtime.">
+<style>
+  html { background: #fff; color: #111; }
+  body { max-width: 38rem; margin: 4rem auto; padding: 0 1.25rem;
+         font: 1rem/1.6 Georgia, 'Times New Roman', serif; }
+  h1 { font-size: 1.5rem; font-weight: normal; margin: 0 0 0.25rem; }
+  h2 { font-size: 1.1rem; font-weight: normal; margin: 1.5rem 0 0.5rem; }
+  hr { border: 0; border-top: 1px solid #111; margin: 1.5rem 0; }
+  a { color: #111; }
+  .meta { font-style: italic; }
+  ul, ol { padding-left: 1.25rem; }
+  code { font-family: 'Courier New', monospace; font-size: 0.95em; }
+</style>
+</head>
+<body>
+
+<h1>rr2.dev: GoDaddy → Cloudflare migration</h1>
+<p class="meta">Aug 8, 2026 — <a href="/worklog/">Worklog</a> · <a href="/">Home</a>.</p>
+
+<hr>
+
+<p><strong>TL;DR:</strong> Moved rr2.dev's DNS and domain registration from GoDaddy/Netlify to Cloudflare in two stages — DNS first, registrar second — with zero downtime throughout.</p>
+
+<p><strong>Why:</strong> Consolidating DNS and registration onto Cloudflare instead of split GoDaddy (registrar) + Netlify (DNS).</p>
+
+<h2>How</h2>
+<ol>
+  <li><strong>DNS Audit &amp; Clean-Up</strong> — Replaced Netlify's dynamic CNAMEs with clean records for <code>@</code> and <code>www</code>, using Cloudflare's automatic CNAME flattening at root. Carried over all Zoho India mail records — MX, SPF, DKIM, verification tokens. Kept everything on DNS Only (grey cloud) initially so Netlify's SSL stayed valid during propagation.</li>
+  <li><strong>Nameserver Cutover</strong> — Swapped Netlify's nameservers for Cloudflare's in GoDaddy's domain panel.</li>
+  <li><strong>Registrar Transfer</strong> — Unlocked the domain on GoDaddy, generated an EPP auth code, initiated transfer via Cloudflare Registrar, then manually approved "Transfer Out" in GoDaddy to skip the 5-day ICANN wait.</li>
+</ol>
+
+<h2>Gotchas</h2>
+<ul>
+  <li>Grey-clouding web/mail records first was what made zero downtime possible — proxying too early would've broken cert issuance mid-migration.</li>
+  <li>Manually approving the transfer-out in GoDaddy is what skips the default 5-day ICANN hold.</li>
+</ul>
+
+<h2>Result</h2>
+<p>Domain and DNS fully on Cloudflare, mail uninterrupted, no downtime observed.</p>
+
+</body>
+</html>
