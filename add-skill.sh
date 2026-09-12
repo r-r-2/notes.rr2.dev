@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
-# add-skill.sh — install the sites.arnavg.in publisher skill into your AI agents.
+# add-skill.sh — install the llmnotes.rr2.dev publisher skill into your AI agents.
 #
 # One-liner (installs into all detected agents):
-#   curl -fsSL https://sites.arnavg.in/add-skill.sh | bash
+#   curl -fsSL https://llmnotes.rr2.dev/add-skill.sh | bash
 #
 # Pick specific agents:
-#   curl -fsSL https://sites.arnavg.in/add-skill.sh | bash -s -- --only claude,pi
+#   curl -fsSL https://llmnotes.rr2.dev/add-skill.sh | bash -s -- --only claude,pi
 #
 # Remove it again:
-#   curl -fsSL https://sites.arnavg.in/add-skill.sh | bash -s -- --uninstall
+#   curl -fsSL https://llmnotes.rr2.dev/add-skill.sh | bash -s -- --uninstall
 #
 # Off-the-shelf alternative (skills.sh package manager, same skill):
-#   npx skills add championswimmer/sites.arnavg.in --skill publish-site-artifact
+#   npx skills add r-r-2/llmnotes.rr2.dev --skill publish-site-artifact
 #   Ref: https://github.com/vercel-labs/skills
 set -euo pipefail
 
 SKILL="publish-site-artifact"
 LEGACY_SKILL="publish-to-sites-arnavg-in"  # removed on install if present
-BASE_URL="${ADD_SKILL_BASE_URL:-https://sites.arnavg.in}"
+BASE_URL="${ADD_SKILL_BASE_URL:-https://llmnotes.rr2.dev}"
 SRC_URL="${ADD_SKILL_URL:-$BASE_URL/skills/$SKILL/SKILL.md}"
 
 ONLY=""
