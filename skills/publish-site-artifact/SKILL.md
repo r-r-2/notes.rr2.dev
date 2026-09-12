@@ -3,9 +3,9 @@ name: publish-site-artifact
 description: Publish a static site artifact — a self-contained report or guide page — to the static-site dumpyard. Use when asked to publish, upload, or add a static page artifact.
 ---
 
-# Publish to llmnotes.rr2.dev
+# Publish to notes.rr2.dev
 
-Static-site dumpyard for LLM-agent notes by Rahul. Repo `r-r-2/llmnotes.rr2.dev`, branch `main`, served from root at https://llmnotes.rr2.dev.
+Static-site collection of LLM-agent notes, maintained by Rahul. Repo `r-r-2/notes.rr2.dev`, branch `main`, served from root at https://notes.rr2.dev.
 
 ## Add a page
 
@@ -21,7 +21,7 @@ Static-site dumpyard for LLM-agent notes by Rahul. Repo `r-r-2/llmnotes.rr2.dev`
 
 ```sh
 CONTENT=$(base64 < /local/path/to/index.html | tr -d '\n')
-gh api "repos/r-r-2/llmnotes.rr2.dev/contents/research/<slug>/index.html" \
+gh api "repos/r-r-2/notes.rr2.dev/contents/research/<slug>/index.html" \
   -X PUT -f message="add <slug>" -f branch="main" -f content="$CONTENT"
 # updating an existing file: GET the path first for its "sha", then add -f sha="<sha>".
 ```
@@ -30,7 +30,7 @@ Ref: https://cli.github.com/manual/
 ### 2. GitHub MCP server (installed + authenticated)
 
 Call `create_or_update_file` once per file with owner `r-r-2`,
-repo `llmnotes.rr2.dev`, branch `main`, path `research/<slug>/index.html`
+repo `notes.rr2.dev`, branch `main`, path `research/<slug>/index.html`
 (or `learning/...`), your HTML as `content` (raw text, not base64),
 message `add <slug>`. Omit `sha` for new files; for updates fetch it
 first via `get_file_contents` (same owner/repo/path, ref `main`).
@@ -42,7 +42,7 @@ Ref: https://github.com/github/github-mcp-server
 CONTENT=$(base64 < /local/path/to/index.html | tr -d '\n')
 curl -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github+json" \
-  https://api.github.com/repos/r-r-2/llmnotes.rr2.dev/contents/research/<slug>/index.html \
+  https://api.github.com/repos/r-r-2/notes.rr2.dev/contents/research/<slug>/index.html \
   -d "{\"message\":\"add <slug>\",\"content\":\"$CONTENT\",\"branch\":\"main\"}"
 # updating an existing file: GET the path first, add its "sha" to the payload.
 ```

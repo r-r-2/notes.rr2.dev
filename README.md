@@ -1,8 +1,9 @@
-# sites.arnavg.in
+# notes.rr2.dev
 
-Dumpyard for LLM-agent-generated static sites by Arnav Gupta
-([arnav.tech](https://arnav.tech)). Served via GitHub Pages at
-<https://sites.arnavg.in>.
+A collection of LLM-agent-generated notes, maintained by Rahul. Served via
+GitHub Pages at <https://notes.rr2.dev>. Adapted from
+[championswimmer/sites.arnavg.in](https://github.com/championswimmer/sites.arnavg.in)
+by Arnav Gupta.
 
 ## Layout
 
