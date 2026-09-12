@@ -16,7 +16,6 @@
 set -euo pipefail
 
 SKILL="publish-site-artifact"
-LEGACY_SKILL="publish-to-sites-arnavg-in"  # removed on install if present
 BASE_URL="${ADD_SKILL_BASE_URL:-https://llmnotes.rr2.dev}"
 SRC_URL="${ADD_SKILL_URL:-$BASE_URL/skills/$SKILL/SKILL.md}"
 
@@ -120,7 +119,6 @@ for agent in $selected; do
   want "$agent" || { echo "skipped   ($agent)"; continue; }
   target_dirs "$agent" | while IFS= read -r dir; do
     mkdir -p "$dir/$SKILL"
-    [ "$dir/$LEGACY_SKILL" != "$dir/$SKILL" ] && rm -rf "$dir/$LEGACY_SKILL"
     if [ -f "$dir/$SKILL/SKILL.md" ] && cmp -s "$tmp" "$dir/$SKILL/SKILL.md"; then
       echo "up-to-date $dir/$SKILL/"
     else
