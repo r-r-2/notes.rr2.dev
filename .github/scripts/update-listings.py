@@ -52,13 +52,16 @@ def title_of(page: Path, slug: str) -> str:
     return title or slug
 
 
-def date_of(page: Path) -> str:
-    """Entry date formatted like 'Aug 8, 2026', or '' if absent/invalid."""
+def date_iso_of(page: Path) -> str:
+    """Raw 'YYYY-MM-DD' date from the entry's <meta name="date">, or '' if absent."""
     m = DATE_RE.search(page.read_text(encoding="utf-8"))
-    if not m:
-        return ""
+    return m.group(1) if m else ""
+
+
+def fmt_date(iso: str) -> str:
+    """Format 'YYYY-MM-DD' like 'Aug 8, 2026', or '' if invalid/empty."""
     try:
-        d = date.fromisoformat(m.group(1))
+        d = date.fromisoformat(iso)
     except ValueError:
         return ""
     return f"{d:%b} {d.day}, {d:%Y}"
@@ -68,7 +71,7 @@ def line_for(name: str, slug: str, dated: bool) -> str:
     page = ROOT / name / slug / "index.html"
     li = f'<li><a href="/{name}/{slug}/">{html.escape(title_of(page, slug))}</a>'
     if dated:
-        d = date_of(page)
+        d = fmt_date(date_iso_of(page))
         if d:
             li += f" — {html.escape(d)}"
     return f"  {li}</li>"
@@ -79,6 +82,10 @@ def update(name: str) -> bool:
     kind = KINDS[name]
     dated = name in DATED
     slugs = slug_dirs(base)
+    if dated:
+        # Newest first by date; undated entries fall to the end, slug order kept
+        # among equal dates (slug_dirs is already sorted and the sort is stable).
+        slugs.sort(key=lambda s: date_iso_of(base / s / "index.html"), reverse=True)
     if slugs:
         items = "\n".join(line_for(name, s, dated) for s in slugs)
     else:
