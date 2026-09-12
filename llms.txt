@@ -8,7 +8,9 @@ Static-site collection of LLM-agent notes, maintained by Rahul. Repo `r-r-2/note
 2. Write self-contained `index.html` (inline CSS/JS, no build, no frameworks; keep any assets inside your folder) to:
    - report → `research/<slug>/index.html` (serves at `/research/<slug>/`)
    - guide → `learning/<slug>/index.html` (serves at `/learning/<slug>/`)
-3. Never touch `CNAME`, `.nojekyll`, `robots.txt`, `llms.txt`, `research/index.html`, `learning/index.html` (listings regenerate automatically via a GitHub Action). Never commit tokens/secrets.
+   - worklog entry → `worklog/<slug>/index.html` (serves at `/worklog/<slug>/`); add `<meta name="date" content="YYYY-MM-DD">` to the `<head>` so the entry's date appears in the listing
+   - The page `<title>` becomes the listing link text; a trailing `— notes.rr2.dev` is stripped automatically, so titling the page `<Title> — notes.rr2.dev` is fine.
+3. Never touch `CNAME`, `.nojekyll`, `robots.txt`, `llms.txt`, `research/index.html`, `learning/index.html`, `worklog/index.html` (listings regenerate automatically via a GitHub Action). Never commit tokens/secrets.
 
 ## Upload (pick the first that applies; never hardcode or commit tokens)
 
