@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jev and "System One" models — notes.rr2.dev</title>
+<meta name="description" content="TypeSafe's Jev returns typed, probabilistic decisions instead of text. A visual walkthrough: why it exists, how it differs from an LLM, what people are building, and what's still unproven.">
+<meta name="date" content="2026-09-18">
+<style>
+  :root {
+    --bg: #fff;
+    --fg: #111;
+    --muted: #666;
+    --hair: #dcdcdc;
+    --panel: #f7f6f4;
+    --mono: 'Courier New', ui-monospace, monospace;
+    --rust: #a8452c;        /* problems, low confidence */
+    --moss: #2f6a4a;        /* the fix, high confidence */
+    --ink-blue: #2c4f7c;    /* structure: data, builds */
+    --wash-rust: #fbf1ed;
+    --wash-moss: #edf4f0;
+    --wash-blue: #eef2f8;
+    --hatch: repeating-linear-gradient(45deg, #f2ddd5 0 4px, #fbf1ed 4px 8px);
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); color: var(--fg); }
+  body { max-width: 44rem; margin: 3.5rem auto 6rem; padding: 0 1.25rem;
+         font: 1rem/1.65 Georgia, 'Times New Roman', serif; }
+
+  h1 { font-size: 1.9rem; font-weight: normal; margin: 0 0 0.3rem; letter-spacing: -0.01em; }
+  h2 { font-size: 1.2rem; font-weight: normal; margin: 2.75rem 0 0.75rem;
+       padding-bottom: 0.3rem; border-bottom: 2px solid var(--ink-blue); }
+  h2::before { content: "▚"; color: var(--ink-blue); font-size: 0.7em;
+               margin-right: 0.45rem; vertical-align: 0.1em; }
+  h3 { font-size: 1rem; font-weight: normal; font-style: italic; margin: 1.5rem 0 0.4rem; }
+  hr { border: 0; border-top: 1px solid var(--fg); margin: 1.5rem 0; }
+  a { color: var(--ink-blue); }
+  p { margin: 0.8rem 0; }
+  .meta { font-style: italic; color: var(--muted); }
+  ul, ol { padding-left: 1.25rem; }
+  li { margin: 0.35rem 0; }
+  code { font-family: var(--mono); font-size: 0.93em; }
+  .step-q { font-style: italic; color: var(--rust); }
+
+  /* ---- generic blocks ---- */
+  .panel { background: var(--panel); border: 1px solid var(--hair);
+           border-radius: 3px; padding: 1rem 1.15rem; margin: 1.25rem 0; }
+  .panel-title { font-size: 0.75rem; letter-spacing: 0.09em; text-transform: uppercase;
+                 color: var(--muted); font-family: var(--mono); margin-bottom: 0.6rem; }
+  pre { font-family: var(--mono); font-size: 0.85em; line-height: 1.55;
+        overflow-x: auto; margin: 0; }
+  .cmt { color: var(--moss); }
+  .kw { color: var(--rust); }
+
+  /* ---- the "if statement gap" ---- */
+  .gap { display: grid; gap: 0.5rem; margin: 1.25rem 0; }
+  .gap div { font-family: var(--mono); font-size: 0.85rem; padding: 0.65rem 0.85rem;
+             border: 1px solid var(--hair); border-radius: 3px; background: var(--panel); }
+  .gap .ok { border-left: 3px solid var(--moss); background: var(--wash-moss); }
+  .gap .no { border-left: 3px dashed var(--rust); background: var(--wash-rust); color: var(--rust); }
+  .gap .tag { float: right; font-family: Georgia, serif; font-style: italic;
+              font-size: 0.8rem; color: var(--muted); }
+
+  /* ---- problem cards ---- */
+  .probs { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+           gap: 0.7rem; margin: 1.25rem 0; }
+  .prob { border: 1px solid var(--hair); border-top: 3px solid var(--rust);
+          border-radius: 3px; padding: 0.8rem 0.9rem; background: var(--wash-rust); }
+  .prob b { display: block; font-weight: normal; font-size: 0.95rem; margin-bottom: 0.2rem; }
+  .prob span { font-size: 0.85rem; color: var(--muted); line-height: 1.5; display: block; }
+  .prob .n { font-family: var(--mono); font-size: 0.7rem; color: var(--rust);
+             letter-spacing: 0.08em; }
+
+  /* ---- root cause banner ---- */
+  .root { border: 1px solid var(--rust); border-left-width: 5px; border-radius: 3px;
+          background: var(--wash-rust); padding: 1rem 1.15rem; margin: 1.5rem 0; }
+  .root .panel-title { color: var(--rust); }
+
+  /* ---- pipeline comparison ---- */
+  .pipes { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.25rem 0; }
+  @media (min-width: 40rem) { .pipes { grid-template-columns: 1fr 1fr; } }
+  .pipe { border: 1px solid var(--hair); border-radius: 3px; padding: 0.9rem; background: var(--panel); }
+  .pipe h4 { margin: 0 0 0.7rem; font-weight: normal; font-size: 0.95rem; }
+  .pipe h4 em { font-style: normal; font-family: var(--mono); font-size: 0.72rem;
+                letter-spacing: 0.08em; color: var(--muted); display: block; }
+  .node { font-family: var(--mono); font-size: 0.78rem; padding: 0.4rem 0.6rem;
+          border: 1px solid var(--hair); border-radius: 2px; background: var(--bg); }
+  .arrow { text-align: center; color: var(--muted); font-size: 0.8rem; line-height: 1.1; margin: 0.2rem 0; }
+  .node.bad { border-color: var(--rust); border-style: dashed; color: var(--rust);
+              background: var(--wash-rust); }
+  .node.good { border-color: var(--moss); color: var(--moss); background: var(--wash-moss); }
+
+  /* ---- token race ---- */
+  .race { margin: 1.25rem 0; }
+  .lane { margin: 0.9rem 0; }
+  .lane .label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em;
+                 color: var(--muted); margin-bottom: 0.3rem; }
+  .toks { display: flex; flex-wrap: wrap; gap: 0.25rem; min-height: 1.8rem; align-items: center; }
+  .tok { font-family: var(--mono); font-size: 0.78rem; padding: 0.15rem 0.4rem;
+         border: 1px solid var(--hair); border-radius: 2px; background: var(--panel);
+         opacity: 0; transform: translateY(3px); }
+  .tok.on { opacity: 1; transform: none; transition: opacity .18s, transform .18s; }
+  .tok.par { border-color: var(--moss); color: var(--moss); background: var(--wash-moss); }
+  .clock { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-left: 0.4rem; }
+  button.run { font: inherit; font-size: 0.85rem; font-family: var(--mono);
+               background: var(--bg); color: var(--fg); border: 1px solid var(--fg);
+               border-radius: 2px; padding: 0.35rem 0.8rem; cursor: pointer; }
+  button.run { border-color: var(--ink-blue); color: var(--ink-blue); }
+  button.run:hover { background: var(--ink-blue); color: #fff; }
+
+  /* ---- interactive decision demo ---- */
+  .demo { border: 1px solid var(--hair); border-radius: 3px; background: var(--panel);
+          padding: 1rem 1.15rem; margin: 1.25rem 0; }
+  .msgs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0 1rem; }
+  .msgs button { font: inherit; font-size: 0.82rem; text-align: left; cursor: pointer;
+                 background: var(--bg); color: var(--fg); border: 1px solid var(--hair);
+                 border-radius: 2px; padding: 0.4rem 0.6rem; max-width: 100%; }
+  .msgs button[aria-pressed="true"] { border-color: var(--ink-blue); background: var(--ink-blue); color: #fff; }
+  .out { display: grid; gap: 0.75rem; }
+  .ans { display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.6rem; align-items: center; }
+  @media (max-width: 30rem) { .ans { grid-template-columns: 1fr; gap: 0.2rem; } }
+  .ans .k { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+  .bar { position: relative; height: 1.5rem; background: var(--bg);
+         border: 1px solid var(--hair); border-radius: 2px; overflow: hidden; }
+  .bar i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--wash-moss);
+           border-right: 2px solid var(--moss); transition: width .5s ease; }
+  .bar span { position: relative; font-family: var(--mono); font-size: 0.76rem;
+              line-height: 1.5rem; padding-left: 0.5rem; }
+  .bar.low i { background: var(--hatch); border-right: 2px dashed var(--rust); }
+  .verdict { font-size: 0.86rem; font-style: italic; color: var(--muted); margin-top: 0.3rem; }
+  .fake { font-size: 0.75rem; color: var(--muted); font-style: italic; margin-top: 0.8rem; }
+
+  /* ---- table ---- */
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; margin: 1rem 0; }
+  th, td { text-align: left; vertical-align: top; padding: 0.5rem 0.6rem 0.5rem 0;
+           border-bottom: 1px solid var(--hair); }
+  th { font-weight: normal; font-style: italic; color: var(--muted); font-size: 0.85rem; }
+  td.a { color: var(--rust); } td.b { color: var(--moss); }
+
+  /* ---- numbers ---- */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+           gap: 0.7rem; margin: 1.25rem 0; }
+  .stat { border: 1px solid var(--hair); border-top: 3px solid var(--ink-blue);
+          border-radius: 3px; padding: 0.8rem; background: var(--wash-blue); text-align: center; }
+  .stat b { display: block; font-size: 1.45rem; font-weight: normal; letter-spacing: -0.02em;
+            color: var(--ink-blue); }
+  .stat span { font-size: 0.78rem; color: var(--muted); }
+
+  /* ---- build cards ---- */
+  .builds { display: grid; gap: 0.7rem; margin: 1.25rem 0; }
+  .build { border: 1px solid var(--hair); border-left: 3px solid var(--ink-blue);
+           border-radius: 3px; padding: 0.8rem 0.9rem; background: var(--wash-blue); }
+  .build b { font-weight: normal; }
+  .build span { display: block; font-size: 0.87rem; color: var(--muted); margin-top: 0.15rem; }
+
+  .warn { border: 2px solid var(--rust); border-radius: 3px; padding: 1rem 1.15rem;
+          margin: 1.25rem 0; background: var(--wash-rust); }
+  .warn .panel-title { color: var(--rust); }
+  .warn ul { margin: 0.3rem 0 0; }
+
+  .end { text-align: center; color: var(--ink-blue); margin: 3rem 0 0; }
+</style>
+</head>
+<body>
+
+<h1>Jev and "System One" models</h1>
+<p class="meta">Sep 18, 2026 — <a href="/learning/">Learning</a> • <a href="/">Home</a>.</p>
+
+<hr>
+
+<p><strong>TL;DR:</strong> TypeSafe AI launched <strong>Jev</strong> on September 15, 2026. It is not a chatbot and not a coding model — it never writes text. You hand it some state plus a list of typed questions, and it returns one typed answer per question with a probability attached. The bet: <em>language generation is the wrong interface between a model and the software that has to act on its output.</em></p>
+
+<h2>1. Start with what code can't do</h2>
+
+<p>Ordinary code branches on things it can <em>compute</em>. It falls apart the moment the condition is a <em>judgment</em>.</p>
+
+<div class="gap">
+  <div class="ok">if (order.total &gt; 100) <span class="tag">computable ✓</span></div>
+  <div class="ok">if (user.createdAt &lt; cutoff) <span class="tag">computable ✓</span></div>
+  <div class="no">if (message.isAngry) <span class="tag">…who decides? ✗</span></div>
+  <div class="no">if (email.isAbout("billing")) <span class="tag">…who decides? ✗</span></div>
+</div>
+
+<p>So we hand the judgment to an LLM. And that's where things get messy.</p>
+
+<h2>2. Six things that go wrong</h2>
+
+<div class="probs">
+  <div class="prob"><span class="n">01</span><b>It talks back</b><span>Your code needs <code>"billing"</code>. You get a paragraph. So you beg for JSON, then parse, validate, retry.</span></div>
+  <div class="prob"><span class="n">02</span><b>It goes off-menu</b><span>You gave five categories. It invents a sixth, or misspells one. Your router misfires.</span></div>
+  <div class="prob"><span class="n">03</span><b>It's slow</b><span>One token at a time. Even a yes/no waits for the model to finish "typing."</span></div>
+  <div class="prob"><span class="n">04</span><b>It's expensive</b><span>Paying a genius-level writer, by the word, to press one of five buttons.</span></div>
+  <div class="prob"><span class="n">05</span><b>Fuzzy confidence</b><span>"Fairly confident" is not a number you can put a threshold on.</span></div>
+  <div class="prob"><span class="n">06</span><b>Trained to please</b><span>TypeSafe's claim: RLHF models assist humans rather than decide reliably on their own.</span></div>
+</div>
+
+<div class="root">
+  <div class="panel-title">So what's the root cause?</div>
+  <p style="margin:0">We're using a <strong>text-writing machine</strong> for what is really a <strong>multiple-choice question</strong>. The interface is language — and language was designed for humans, not for <code>if</code> statements.</p>
+  <p style="margin:0.6rem 0 0"><em>It's hiring a novelist to fill in a bubble sheet.</em></p>
+</div>
+
+<h2>3. So how would you fix it?</h2>
+
+<p>Follow the questions down, one at a time:</p>
+
+<p><span class="step-q">What does software actually need?</span><br>
+Data in, an answer it can use directly out. Nothing to parse.</p>
+
+<p><span class="step-q">If the answers come from a fixed menu, do we need words at all?</span><br>
+No. Just score every option on the menu.</p>
+
+<p><span class="step-q">If nothing is being written, must it go token by token?</span><br>
+No. Answer <em>every</em> question in parallel, in a single pass.</p>
+
+<p><span class="step-q">And can it still go off-menu?</span><br>
+No. It can only return one of your options — so invented categories and type errors become structurally impossible.</p>
+
+<div class="pipes">
+  <div class="pipe">
+    <h4>LLM as decision-maker <em>the long way round</em></h4>
+    <div class="node">state + prompt</div>
+    <div class="arrow">↓</div>
+    <div class="node">generate text, token by token</div>
+    <div class="arrow">↓</div>
+    <div class="node">parse the string</div>
+    <div class="arrow">↓</div>
+    <div class="node bad">validate · retry · pray</div>
+    <div class="arrow">↓</div>
+    <div class="node">a usable value (probably)</div>
+  </div>
+  <div class="pipe">
+    <h4>Jev <em>the short way</em></h4>
+    <div class="node">state + typed questions</div>
+    <div class="arrow">↓</div>
+    <div class="node good">one parallel pass</div>
+    <div class="arrow">↓</div>
+    <div class="node good">typed answers + probabilities</div>
+    <div class="arrow" style="opacity:.25">↓</div>
+    <div class="node" style="opacity:.35">— no parse step —</div>
+    <div class="arrow" style="opacity:.25">↓</div>
+    <div class="node" style="opacity:.35">— no retry step —</div>
+  </div>
+</div>
+
+<h2>4. Watch the difference</h2>
+
+<p>The same decision, two ways. One writes it out; one just picks.</p>
+
+<div class="race">
+  <div class="lane">
+    <div class="label">LLM — writing the answer, token by token</div>
+    <div class="toks" id="laneA"></div>
+  </div>
+  <div class="lane">
+    <div class="label">JEV — all questions answered in one pass</div>
+    <div class="toks" id="laneB"></div>
+  </div>
+  <button class="run" id="raceBtn" type="button">▶ run both</button>
+</div>
+
+<h2>5. What Jev actually is</h2>
+
+<p>TypeSafe's framing: <em>unstructured state in, typed probabilistic decisions out</em> — a frontier-intelligence function call. One writer put it better: <strong>a smart <code>if</code> statement</strong>. Three answer shapes:</p>
+
+<ul>
+  <li><strong>choice</strong> — pick one of 1–255 options you defined, with full probabilities</li>
+  <li><strong>score</strong> — a position on a rubric of 2–10 ordered levels</li>
+  <li><strong>boolean</strong> — the estimated probability that something is true</li>
+</ul>
+
+<div class="panel">
+  <div class="panel-title">the shape of a call (illustrative)</div>
+<pre><span class="kw">const</span> answers = <span class="kw">await</span> jev({
+  state: supportMessage,
+  questions: {
+    topic:      choice([<span class="kw">"billing"</span>, <span class="kw">"bug"</span>, <span class="kw">"refund"</span>, <span class="kw">"other"</span>]),
+    anger:      score(5),
+    needsHuman: boolean(),
+  },
+});
+<span class="cmt">// answers.topic -&gt; "billing", p = 0.93</span>
+<span class="cmt">// no parsing, no "please reply in JSON"</span></pre>
+</div>
+
+<p>Your code acts when confidence is high and escalates when it isn't. Try it on a few messages:</p>
+
+<div class="demo">
+  <div class="panel-title">a support inbox, decided</div>
+  <div class="msgs" id="msgs"></div>
+  <div class="out" id="out"></div>
+  <p class="fake">Illustrative only — these outputs are hardcoded to show the <em>shape</em> of a response, not a live API call.</p>
+</div>
+
+<h2>6. Where the name comes from</h2>
+
+<p>Kahneman's <em>Thinking, Fast and Slow</em>. <strong>System 1</strong> is fast instinct — catching a ball. <strong>System 2</strong> is slow deliberation — solving a puzzle. LLMs with chain-of-thought and multi-second reasoning traces sit firmly in System 2 territory.</p>
+
+<p>TypeSafe's argument is that the automation gap exists because everyone built System 2 models, while most decisions <em>inside</em> software want a System 1 answer.</p>
+
+<h2>7. How it differs from an LLM</h2>
+
+<table>
+  <tr><th></th><th>Typical LLM</th><th>Jev</th></tr>
+  <tr><td>Output</td><td class="a">free-form text</td><td class="b">typed answers from your menu</td></tr>
+  <tr><td>Generation</td><td class="a">one token at a time</td><td class="b">all questions in parallel, one pass</td></tr>
+  <tr><td>Confidence</td><td class="a">vague, in words</td><td class="b">calibrated probabilities</td></tr>
+  <tr><td>Chat or write code?</td><td class="a">yes</td><td class="b">no, by design</td></tr>
+  <tr><td>Best at</td><td class="a">open-ended thinking, writing</td><td class="b">fast repeated decisions, known answers</td></tr>
+</table>
+
+<p>Against <em>older</em> AI — a sentiment classifier trained for one fixed task — the difference is flexibility: you define new questions at call time instead of training a new model per question. The training method is <strong>RLCD</strong> (Reinforcement Learning for Calibrated Decisions), aimed at making those probabilities honest.</p>
+
+<h2>8. The numbers</h2>
+
+<div class="stats">
+  <div class="stat"><b>40–200×</b><span>faster than frontier LLMs</span></div>
+  <div class="stat"><b>~150 ms</b><span>typical call</span></div>
+  <div class="stat"><b>$0.042</b><span>per M input tokens<br>(output free)</span></div>
+  <div class="stat"><b>67.8%</b><span>avg. agreement with reference answers</span></div>
+</div>
+
+<p class="meta">All of the above is vendor-reported. The 67.8% comes from TypeSafe's own evaluation across four workflows — security incident response, agent-trace observability, invoice processing, customer service — scored against GPT-6 Astra and Fable. Read as: mid-tier frontier accuracy, at one to two orders of magnitude less cost and latency.</p>
+
+<h2>9. What people built in week one</h2>
+
+<div class="builds">
+  <div class="build"><b>A model router</b><span>Jev decides which model serves a request before it's forwarded. Easy question → cheap model; hard question → big model.</span></div>
+  <div class="build"><b>A fast browser agent</b><span>Browser Use wired Jev into a tiny open-source agent: a flight search in ~7 seconds for about $0.0039. DOM as state, a fresh action space each step, a small LLM only as fallback for typing.</span></div>
+  <div class="build"><b>An agent safety monitor</b><span>Jev checks every agent action before it runs. The tester reported catching most attacks with almost no false blocks, at far lower latency.</span></div>
+  <div class="build"><b>Routine sorting and scoring</b><span>Email triage, urgency scoring, output verification, trading decisions.</span></div>
+  <div class="build"><b>Clones</b><span>One builder claims a small MLP on top of Qwen 4B already reproduces Jev-like behaviour. Others are attempting local Jev-style models.</span></div>
+  <div class="build"><b>Plumbing</b><span>Available on the Vercel AI Gateway, with an AI SDK provider and a community Elixir SDK.</span></div>
+</div>
+
+<p>The pattern worth noticing: in the router, the browser agent and the safety monitor, Jev doesn't <em>replace</em> the LLM. It wraps around it as a reflex layer — deciding who answers, what to click, whether an action is safe — and hands off to a big model only when needed.</p>
+
+<p>A model that can't write paragraphs turns out to be useful for the small decisions <em>between</em> the paragraphs.</p>
+
+<h2>10. Caveats</h2>
+
+<div class="warn">
+  <div class="panel-title">before you believe any of it</div>
+  <ul>
+    <li><strong>"Cannot hallucinate" is narrower than it sounds.</strong> It can't emit an invalid answer or a type error. It can still pick the <em>wrong</em> option off the menu. Valid ≠ correct.</li>
+    <li><strong>All benchmarks are TypeSafe's own.</strong> No large-scale independent reproduction has surfaced yet.</li>
+    <li><strong>Measure cost per workflow</strong>, fallback models and human review included — not per cheap API call.</li>
+    <li><strong>It is days old.</strong> Everything here is demos and launch-week enthusiasm, not production track record.</li>
+  </ul>
+</div>
+
+<h2>The idea underneath</h2>
+
+<p>Not every intelligent part of a system needs to talk. Some tasks need a paragraph; others need a bounded decision, usable uncertainty, and an explicit account of what happens next.</p>
+
+<p>Whether RLCD delivers on that is unproven. But the question is a good one: <em>how much more dependable could AI get if we stopped requiring every intelligent component to speak?</em></p>
+
+<hr>
+
+<p class="meta">Sources: TypeSafe AI's launch post, DataCamp, flaviocopes.com, Anthony Maio, and a community list of Jev projects. Written up from a Claude session, Sep 18, 2026.</p>
+
+<p class="end">✦</p>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- token race ---------- */
+  var A = document.getElementById("laneA");
+  var B = document.getElementById("laneB");
+  var btn = document.getElementById("raceBtn");
+  var llmToks = ['{', '"topic"', ':', '"billing"', ',', '"anger"', ':', '4', ',',
+                 '"needsHuman"', ':', 'true', '}'];
+  var jevToks = ['topic=billing', 'anger=4', 'needsHuman=true'];
+  var timers = [];
+
+  function clear() {
+    timers.forEach(clearTimeout); timers = [];
+    A.innerHTML = ""; B.innerHTML = "";
+  }
+  function chip(txt, cls) {
+    var s = document.createElement("span");
+    s.className = "tok" + (cls ? " " + cls : "");
+    s.textContent = txt;
+    return s;
+  }
+  function clock(parent, ms) {
+    var c = document.createElement("span");
+    c.className = "clock"; c.textContent = "≈ " + ms;
+    parent.appendChild(c);
+  }
+  function race() {
+    clear();
+    llmToks.forEach(function (t, i) {
+      var el = chip(t); A.appendChild(el);
+      timers.push(setTimeout(function () { el.classList.add("on"); }, 120 + i * 180));
+    });
+    timers.push(setTimeout(function () { clock(A, "2.4 s"); }, 120 + llmToks.length * 180));
+
+    jevToks.forEach(function (t) {
+      var el = chip(t, "par"); B.appendChild(el);
+      timers.push(setTimeout(function () { el.classList.add("on"); }, 300));
+    });
+    timers.push(setTimeout(function () { clock(B, "150 ms"); }, 320));
+  }
+  btn.addEventListener("click", race);
+
+  /* ---------- decision demo ---------- */
+  var cases = [
+    { label: "I've been charged twice and nobody is answering me!!",
+      topic: "billing", topicP: 0.93, anger: 5, angerP: 0.88,
+      human: 0.81,
+      verdict: "High confidence on topic → auto-route to billing. Anger is high → flag for a human." },
+    { label: "hey, quick q — does the export button support CSV?",
+      topic: "other", topicP: 0.71, anger: 1, angerP: 0.95,
+      human: 0.12,
+      verdict: "Calm and low-stakes → the bot handles it without escalation." },
+    { label: "app crashes every time I open settings on iOS 26",
+      topic: "bug", topicP: 0.96, anger: 3, angerP: 0.64,
+      human: 0.34,
+      verdict: "Clear bug report → straight to the engineering queue." },
+    { label: "cancel my plan. i want the money back. today.",
+      topic: "refund", topicP: 0.58, anger: 4, angerP: 0.79,
+      human: 0.88,
+      verdict: "Topic confidence is only 0.58 — below threshold. Don't guess; escalate." }
+  ];
+
+  var msgs = document.getElementById("msgs");
+  var out = document.getElementById("out");
+
+  function row(key, value, p) {
+    var wrap = document.createElement("div");
+    wrap.className = "ans";
+    var k = document.createElement("div");
+    k.className = "k"; k.textContent = key;
+    var bar = document.createElement("div");
+    bar.className = "bar" + (p < 0.6 ? " low" : "");
+    var fill = document.createElement("i");
+    var txt = document.createElement("span");
+    txt.textContent = value + "   p = " + p.toFixed(2);
+    bar.appendChild(fill); bar.appendChild(txt);
+    wrap.appendChild(k); wrap.appendChild(bar);
+    requestAnimationFrame(function () { fill.style.width = (p * 100) + "%"; });
+    return wrap;
+  }
+
+  function render(c) {
+    out.innerHTML = "";
+    out.appendChild(row("choice topic", c.topic, c.topicP));
+    out.appendChild(row("score anger", c.anger + " / 5", c.angerP));
+    out.appendChild(row("bool needsHuman", c.human > 0.5 ? "true" : "false", c.human));
+    var v = document.createElement("p");
+    v.className = "verdict"; v.textContent = c.verdict;
+    out.appendChild(v);
+  }
+
+  cases.forEach(function (c, i) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.textContent = c.label;
+    b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+    b.addEventListener("click", function () {
+      Array.prototype.forEach.call(msgs.children, function (x) {
+        x.setAttribute("aria-pressed", "false");
+      });
+      b.setAttribute("aria-pressed", "true");
+      render(c);
+    });
+    msgs.appendChild(b);
+  });
+  render(cases[0]);
+})();
+</script>
+
+</body>
+</html>
