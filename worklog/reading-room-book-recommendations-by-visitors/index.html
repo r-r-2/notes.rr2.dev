@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New in the Reading Room: book recommendations from website visitors — notes.rr2.dev</title>
+<meta name="description" content="A new Reading Room feature: website visitors can now recommend a book without a GitHub account. A Cloudflare Worker files a GitHub issue, and adding the approved label shelves it for everyone.">
+<meta name="date" content="2026-09-25">
+<style>
+  html { background: #fff; color: #111; }
+  body { max-width: 38rem; margin: 4rem auto; padding: 0 1.25rem;
+         font: 1rem/1.6 Georgia, 'Times New Roman', serif; }
+  h1 { font-size: 1.5rem; font-weight: normal; margin: 0 0 0.25rem; }
+  h2 { font-size: 1.1rem; font-weight: normal; margin: 1.5rem 0 0.5rem; }
+  hr { border: 0; border-top: 1px solid #111; margin: 1.5rem 0; }
+  a { color: #111; }
+  .meta { font-style: italic; }
+  ul, ol { padding-left: 1.25rem; }
+  li { margin-bottom: 0.4rem; }
+  code { font-family: 'Courier New', monospace; font-size: 0.95em; }
+</style>
+</head>
+<body>
+
+<h1>New in the Reading Room: book recommendations from website visitors</h1>
+<p class="meta">Sep 25, 2026 — <a href="/worklog/">Worklog</a> • <a href="/">Home</a>.</p>
+
+<hr>
+
+<p><a href="https://readingroom.rr2.dev">The Reading Room</a> is a first-person 3D room you can walk through, built in Three.js and hosted on GitHub Pages — books on the shelves, a record in the corner, a table by the door. Click a spine to pull it out; the ones on the reading table are whatever I'm in the middle of.</p>
+
+<p>Until now the table only held my own books. This update adds the room's first way for website visitors to put something on it: a book recommendation.</p>
+
+<h2>Links</h2>
+<ul>
+  <li>Room: <a href="https://readingroom.rr2.dev">readingroom.rr2.dev</a></li>
+  <li>Repo: <a href="https://github.com/r-r-2/thereadingroom">github.com/r-r-2/thereadingroom</a></li>
+  <li>Sample recommendation: <a href="https://github.com/r-r-2/thereadingroom/issues/19">github.com/r-r-2/thereadingroom/issues/19</a></li>
+</ul>
+
+<hr>
+
+<p><strong>New feature:</strong> Website visitors can recommend a book without a GitHub account. The form files an issue; adding the <code>approved</code> label shelves it on the table for everyone. First real book through the pipe: <em>The Secret</em>, recommended by Swaa (<a href="https://github.com/r-r-2/thereadingroom/issues/19">#19</a>).</p>
+
+<h2>Why add it this way</h2>
+<p>The room is static GitHub Pages. Website visitors shouldn't need an account, and unreviewed titles shouldn't land in the repo on their own. Issues are the queue; <code>guestbook.js</code> stays the source of truth.</p>
+
+<h2>How the feature works</h2>
+<ol>
+  <li><strong>Visitor writes in the room.</strong> Quill / sign / table opens a form (title, author, name, why). Open Library can attach an ISBN and cover. Submit POSTs to a Cloudflare Worker — not to GitHub from the browser.</li>
+  <li><strong>Worker files an issue.</strong> It validates the fields, applies abuse limits (20 per hashed IP, 3/min burst, no links, duplicate/flood guards), and opens an issue labeled <code>recommendation</code>, with the payload in a <code>&lt;!-- rr-guest --&gt;</code> JSON block. Secrets stay in Actions and get pushed to the Worker on deploy; the static page never sees them.</li>
+  <li><strong>The submitter sees it right away.</strong> Their book appears on the table in this browser, with an "awaiting approval" tag (<code>localStorage</code>). Other visitors do not see it on the table until it's shelved — only in the ledger's Waiting page.</li>
+  <li><strong>Approve = shelve.</strong> Open the issue, add the <code>approved</code> label. The shelve Action appends the entry to <code>guestbook.js</code>, commits to <code>main</code>, and closes the issue. Pages redeploys; the tag comes off for everyone.</li>
+  <li><strong>Decline = close.</strong> Close the issue without <code>approved</code>. The submitter's local copy is dropped on their next visit.</li>
+</ol>
+
+<h2>What powers it</h2>
+<ul>
+  <li><strong>GitHub Issues</strong> — the moderation queue. Each recommendation is an issue (<code>recommendation</code> label). Approve by adding <code>approved</code>; decline by closing without it.</li>
+  <li><strong>Cloudflare Worker</strong> — the public write path. Anonymous POST from the room, validation and abuse limits, then files the issue with a PAT. The static page never talks to GitHub.</li>
+  <li><strong>GitHub Actions</strong> — two workflows. One deploys the Worker (and pushes Actions secrets into Cloudflare). The other watches for <code>approved</code> and commits the entry to <code>guestbook.js</code>.</li>
+</ul>
+
+<h2>What shipped</h2>
+<ul>
+  <li><a href="https://github.com/r-r-2/thereadingroom/pull/17">#17</a> — visitor table, Worker, issue relay, shelve Action (<code>c403cd4</code>).</li>
+  <li><a href="https://github.com/r-r-2/thereadingroom/pull/18">#18</a> — form pointed at the live Worker (<code>7692384</code>).</li>
+  <li>First shelved recommendation: <em>The Secret</em> (Swaa, <a href="https://github.com/r-r-2/thereadingroom/issues/19">#19</a>).</li>
+</ul>
+
+</body>
+</html>
