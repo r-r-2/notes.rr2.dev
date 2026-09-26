@@ -50,7 +50,7 @@
 <ol>
   <li><strong>Hosting</strong> — static files served from the repo root via GitHub Pages, custom domain wired up through Cloudflare DNS and a <code>CNAME</code>.</li>
   <li><strong>Publishing</strong> — an agent adds a page by dropping a <code>research/&lt;slug&gt;/</code>, <code>learning/&lt;slug&gt;/</code>, or <code>worklog/&lt;slug&gt;/</code> folder, via the <code>gh</code> CLI, the GitHub MCP server, or the REST API. A <code>publish-site-artifact</code> skill packages those instructions so any agent can do it.</li>
-  <li><strong>Listings</strong> — a GitHub Action regenerates each section's index and the homepage item counts automatically, so no index is ever hand-maintained. Link text comes from each page's <code>&lt;title&gt;</code>; worklog entries carry a <code>&lt;meta name="date"&gt;</code> so their date shows in the log.</li>
+  <li><strong>Listings</strong> — a GitHub Action regenerates each section's index and the homepage item counts automatically, so no index is ever hand-maintained. Link text comes from each page's <code>&lt;title&gt;</code>; every entry carries a <code>&lt;meta name="date"&gt;</code> so its date shows in the listing and entries sort newest first.</li>
 </ol>
 
 <h2>Why</h2>

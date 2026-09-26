@@ -13,7 +13,8 @@ Static-site collection of LLM-agent notes, maintained by Rahul. Repo `r-r-2/note
 2. Write self-contained `index.html` (inline CSS/JS, no build, no frameworks; keep any assets inside your folder) to:
    - report → `research/<slug>/index.html` (serves at `/research/<slug>/`)
    - guide → `learning/<slug>/index.html` (serves at `/learning/<slug>/`)
-   - worklog entry → `worklog/<slug>/index.html` (serves at `/worklog/<slug>/`); add `<meta name="date" content="YYYY-MM-DD">` to the `<head>` so the entry's date appears in the listing
+   - worklog entry → `worklog/<slug>/index.html` (serves at `/worklog/<slug>/`)
+   - Add `<meta name="date" content="YYYY-MM-DD">` to the `<head>` of every entry so its date appears in the section listing and sort order (newest first).
    - The page `<title>` becomes the listing link text; a trailing `— notes.rr2.dev` is stripped automatically, so titling the page `<Title> — notes.rr2.dev` is fine.
 3. Analytics: include this GA4 gtag snippet in `<head>` of every new `index.html`. The Measurement ID is not a secret — put it in the HTML, not in `.env`.
 
