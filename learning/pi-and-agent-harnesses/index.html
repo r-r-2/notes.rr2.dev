@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pi, agent harnesses, and how to benchmark them — notes.rr2.dev</title>
+<meta name="description" content="What a coding-agent harness is, why Mario Zechner built the minimal Pi harness, and why every coding benchmark score is really a model + harness pair.">
+<meta name="date" content="2026-09-26">
+<style>
+  :root {
+    --bg: #fff;
+    --fg: #111;
+    --muted: #666;
+    --hair: #dcdcdc;
+    --panel: #f7f6f4;
+    --mono: 'Courier New', ui-monospace, monospace;
+    --rust: #a8452c;        /* problems */
+    --moss: #2f6a4a;        /* the fix */
+    --ink-blue: #2c4f7c;    /* structure, numbers */
+    --wash-rust: #fbf1ed;
+    --wash-moss: #edf4f0;
+    --wash-blue: #eef2f8;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); color: var(--fg); }
+  body { max-width: 44rem; margin: 3.5rem auto 6rem; padding: 0 1.25rem;
+         font: 1rem/1.65 Georgia, 'Times New Roman', serif; }
+
+  h1 { font-size: 1.9rem; font-weight: normal; margin: 0 0 0.3rem; letter-spacing: -0.01em; }
+  h2 { font-size: 1.2rem; font-weight: normal; margin: 2.75rem 0 0.75rem;
+       padding-bottom: 0.3rem; border-bottom: 2px solid var(--ink-blue); }
+  h2::before { content: "▚"; color: var(--ink-blue); font-size: 0.7em;
+               margin-right: 0.45rem; vertical-align: 0.1em; }
+  h3 { font-size: 1rem; font-weight: normal; font-style: italic; margin: 1.5rem 0 0.4rem; }
+  hr { border: 0; border-top: 1px solid var(--fg); margin: 1.5rem 0; }
+  a { color: var(--ink-blue); }
+  p { margin: 0.8rem 0; }
+  .meta { font-style: italic; color: var(--muted); }
+  ul, ol { padding-left: 1.25rem; }
+  li { margin: 0.35rem 0; }
+  code { font-family: var(--mono); font-size: 0.93em; }
+  .step-q { font-style: italic; color: var(--rust); }
+
+  .panel { background: var(--panel); border: 1px solid var(--hair);
+           border-radius: 3px; padding: 1rem 1.15rem; margin: 1.25rem 0; }
+  .panel-title { font-size: 0.75rem; letter-spacing: 0.09em; text-transform: uppercase;
+                 color: var(--muted); font-family: var(--mono); margin-bottom: 0.6rem; }
+  pre { font-family: var(--mono); font-size: 0.85em; line-height: 1.55;
+        overflow-x: auto; margin: 0; }
+  .cmt { color: var(--moss); }
+  .kw { color: var(--rust); }
+
+  /* ---- harness anatomy ---- */
+  .anat { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+          gap: 0.7rem; margin: 1.25rem 0; }
+  .part { border: 1px solid var(--hair); border-left: 3px solid var(--ink-blue);
+          border-radius: 3px; padding: 0.8rem 0.9rem; background: var(--wash-blue); }
+  .part b { display: block; font-weight: normal; }
+  .part span { display: block; font-size: 0.86rem; color: var(--muted); line-height: 1.5; }
+
+  /* ---- problem cards ---- */
+  .probs { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+           gap: 0.7rem; margin: 1.25rem 0; }
+  .prob { border: 1px solid var(--hair); border-top: 3px solid var(--rust);
+          border-radius: 3px; padding: 0.8rem 0.9rem; background: var(--wash-rust); }
+  .prob b { display: block; font-weight: normal; font-size: 0.95rem; margin-bottom: 0.2rem; }
+  .prob span { font-size: 0.85rem; color: var(--muted); line-height: 1.5; display: block; }
+  .prob .n { font-family: var(--mono); font-size: 0.7rem; color: var(--rust);
+             letter-spacing: 0.08em; }
+
+  .root { border: 1px solid var(--rust); border-left-width: 5px; border-radius: 3px;
+          background: var(--wash-rust); padding: 1rem 1.15rem; margin: 1.5rem 0; }
+  .root .panel-title { color: var(--rust); }
+  .fix { border: 1px solid var(--moss); border-left-width: 5px; border-radius: 3px;
+         background: var(--wash-moss); padding: 1rem 1.15rem; margin: 1.5rem 0; }
+  .fix .panel-title { color: var(--moss); }
+
+  /* ---- four tools ---- */
+  .tools { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0 0.6rem; }
+  .tools button { font-family: var(--mono); font-size: 0.9rem; cursor: pointer;
+                  background: var(--bg); color: var(--moss); border: 1px solid var(--moss);
+                  border-radius: 2px; padding: 0.45rem 0.9rem; }
+  .tools button[aria-pressed="true"] { background: var(--moss); color: #fff; }
+  .toolnote { font-size: 0.9rem; min-height: 3.2rem; color: var(--fg); }
+  .toolnote em { color: var(--muted); }
+
+  /* ---- left out / added back table ---- */
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; margin: 1rem 0; }
+  th, td { text-align: left; vertical-align: top; padding: 0.5rem 0.6rem 0.5rem 0;
+           border-bottom: 1px solid var(--hair); }
+  th { font-weight: normal; font-style: italic; color: var(--muted); font-size: 0.85rem; }
+  td.a { color: var(--rust); } td.b { color: var(--moss); }
+
+  /* ---- chef / kitchen toggle ---- */
+  .seg { display: inline-flex; border: 1px solid var(--ink-blue); border-radius: 2px;
+         overflow: hidden; margin: 0.3rem 0 1rem; flex-wrap: wrap; }
+  .seg button { font-family: var(--mono); font-size: 0.8rem; cursor: pointer; border: 0;
+                background: var(--bg); color: var(--ink-blue); padding: 0.4rem 0.8rem; }
+  .seg button[aria-pressed="true"] { background: var(--ink-blue); color: #fff; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+  .cell { border: 1px solid var(--hair); border-radius: 2px; background: var(--bg);
+          padding: 0.55rem 0.5rem; text-align: center; font-size: 0.82rem; }
+  .cell .c { display: block; font-family: var(--mono); font-size: 0.72rem; }
+  .cell .fixed { color: var(--muted); }
+  .cell .vary { color: var(--rust); }
+  .explain { font-size: 0.88rem; color: var(--muted); font-style: italic; margin-top: 0.7rem; }
+
+  /* ---- bars ---- */
+  .bars { margin: 1rem 0; }
+  .brow { display: grid; grid-template-columns: 11rem 1fr; gap: 0.6rem; align-items: center;
+          margin: 0.45rem 0; }
+  @media (max-width: 32rem) { .brow { grid-template-columns: 1fr; gap: 0.15rem; } }
+  .brow .k { font-family: var(--mono); font-size: 0.76rem; color: var(--muted); }
+  .bar { position: relative; height: 1.5rem; background: var(--bg);
+         border: 1px solid var(--hair); border-radius: 2px; overflow: hidden; }
+  .bar i { position: absolute; inset: 0 auto 0 0; background: var(--wash-blue);
+           border-right: 2px solid var(--ink-blue); }
+  .bar.lo i { background: var(--wash-rust); border-right-color: var(--rust); }
+  .bar.hi i { background: var(--wash-moss); border-right-color: var(--moss); }
+  .bar span { position: relative; font-family: var(--mono); font-size: 0.76rem;
+              line-height: 1.5rem; padding-left: 0.5rem; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+           gap: 0.7rem; margin: 1.25rem 0; }
+  .stat { border: 1px solid var(--hair); border-top: 3px solid var(--ink-blue);
+          border-radius: 3px; padding: 0.8rem; background: var(--wash-blue); text-align: center; }
+  .stat b { display: block; font-size: 1.45rem; font-weight: normal; letter-spacing: -0.02em;
+            color: var(--ink-blue); }
+  .stat span { font-size: 0.78rem; color: var(--muted); }
+
+  .warn { border: 2px solid var(--rust); border-radius: 3px; padding: 1rem 1.15rem;
+          margin: 1.25rem 0; background: var(--wash-rust); }
+  .warn .panel-title { color: var(--rust); }
+  .warn ul { margin: 0.3rem 0 0; }
+
+  .src { font-size: 0.9rem; }
+  .src li { margin: 0.3rem 0; }
+  .src li::marker { color: var(--ink-blue); }
+
+  .end { text-align: center; color: var(--ink-blue); margin: 3rem 0 0; }
+</style>
+</head>
+<body>
+
+<h1>Pi, agent harnesses, and how to benchmark them</h1>
+<p class="meta">Sep 26, 2026 — <a href="/learning/">Learning</a> • <a href="/">Home</a>.</p>
+
+<hr>
+
+<p><strong>TL;DR:</strong> A coding agent is a <em>model</em> inside a <em>harness</em>. Mario Zechner built <strong>Pi</strong>, a deliberately tiny harness with four tools, because bigger harnesses kept quietly changing what the model sees. And when you try to rank harnesses, you find that every benchmark score is really a <strong>model + harness pair</strong>. You can't grade the kitchen without also tasting the chef.</p>
+
+<h2>1. What even is a harness?</h2>
+
+<p>A model on its own is a brilliant chef locked in an empty room. It can <em>tell</em> you how to make pasta, but it can't boil water. The harness is the kitchen we build around it:</p>
+
+<div class="anat">
+  <div class="part"><b>the loop</b><span>send the request, see what the model wants to do, do it, send back the result, and repeat</span></div>
+  <div class="part"><b>the tools</b><span>the hands: read a file, write a file, run a command</span></div>
+  <div class="part"><b>the context</b><span>what the model sees on every turn: system prompt, tool descriptions, history</span></div>
+</div>
+
+<p>Claude Code, Codex, OpenCode, Amp, and Cursor's agent are all harnesses.</p>
+
+<h2>2. What was going wrong</h2>
+
+<div class="probs">
+  <div class="prob"><span class="n">01</span><b>The kitchen keeps moving</b><span>Mario found that as Claude Code added features, it started behaving unpredictably. The knives kept changing drawers.</span></div>
+  <div class="prob"><span class="n">02</span><b>Hidden context surgery</b><span>In OpenCode he found context pruning that "lobotomizes" the model, and LSP errors injected after every line of an edit.</span></div>
+  <div class="prob"><span class="n">03</span><b>Token bloat</b><span>Playwright MCP costs about 13.7k tokens of tool descriptions. A short README the agent reads through bash costs about 200–400.</span></div>
+  <div class="prob"><span class="n">04</span><b>One size fits nobody</b><span>Different jobs need different harnesses. The same hammer isn't right for every construction job.</span></div>
+</div>
+
+<div class="root">
+  <div class="panel-title">So what's the root cause?</div>
+  <p style="margin:0">The harness makes <strong>lots of decisions for you, invisibly</strong>, and those decisions change what the model sees. More features means more hidden text, and you can't tell why the model got confused.</p>
+</div>
+
+<h2>3. So how would you fix it?</h2>
+
+<p><span class="step-q">If the hidden stuff is the disease, what's the cure?</span><br>
+Have less stuff, and make every addition visible and chosen by you.</p>
+
+<p><span class="step-q">But won't a stripped-down agent be dumb?</span><br>
+No. Frontier models have been heavily RL-trained on coding, so they already know what a coding agent is. The chef already knows how to cook and doesn't need a 50-page manual.</p>
+
+<p><span class="step-q">So what's the smallest set of tools that still does everything?</span><br>
+Read, write, edit… and <code>bash</code>. Bash can run any program, so every other capability can be a tiny CLI script.</p>
+
+<div class="fix">
+  <div class="panel-title">Enter Pi</div>
+  <p style="margin:0">A minimal terminal coding harness. It has a small, stable core, and every extra capability is something <strong>you</strong> explicitly add.</p>
+</div>
+
+<h2>4. The four tools</h2>
+
+<p>Click each one:</p>
+
+<div class="tools" id="tools">
+  <button type="button" data-k="read" aria-pressed="true">read</button>
+  <button type="button" data-k="write" aria-pressed="false">write</button>
+  <button type="button" data-k="edit" aria-pressed="false">edit</button>
+  <button type="button" data-k="bash" aria-pressed="false">bash</button>
+</div>
+<p class="toolnote" id="toolnote"></p>
+
+<h3>What it leaves out, and how you get it back</h3>
+
+<table>
+  <tr><th>Left out</th><th>The Pi way</th></tr>
+  <tr><td class="a">sub-agents</td><td class="b">spawn another <code>pi</code> session through bash and read its output</td></tr>
+  <tr><td class="a">plan mode</td><td class="b">ask Pi to build it, or install a Pi package</td></tr>
+  <tr><td class="a">big MCP servers</td><td class="b">small CLI tools plus a README the agent reads when needed</td></tr>
+  <tr><td class="a">huge system prompt</td><td class="b">skills: only a one-line description sits in context, and the full instructions load on demand</td></tr>
+</table>
+
+<p>Pi can also modify itself, so you can grow a custom harness for a specific job. Mario sees that as a preview of self-modifying software.</p>
+
+<div class="panel">
+  <div class="panel-title">layers you can reuse separately</div>
+<pre><span class="kw">pi-ai</span>          <span class="cmt">// one API across LLM providers, with token + cost tracking</span>
+<span class="kw">pi-agent-core</span>  <span class="cmt">// the loop: run tools, validate, stream events</span>
+<span class="kw">pi-tui</span>         <span class="cmt">// terminal UI with differential rendering</span>
+
+<span class="cmt">// or embed it as an SDK</span>
+<span class="kw">const</span> { session } = <span class="kw">await</span> createAgentSession({ ... });
+<span class="kw">await</span> session.prompt(<span class="kw">"What files are in this directory?"</span>);</pre>
+</div>
+
+<h2>5. So which harness is best?</h2>
+
+<p><span class="step-q">Easy: give each one the same tasks and count wins?</span><br>
+But which model is running inside each one? A harness never works alone. Terminal-Bench says it outright: it grades the model and the harness <em>together</em>.</p>
+
+<p><span class="step-q">So how do benchmarks untangle the chef from the kitchen?</span><br>
+Hold one of them fixed:</p>
+
+<div class="panel">
+  <div class="seg" id="seg">
+    <button type="button" data-m="chef" aria-pressed="true">fix kitchen, swap chefs</button>
+    <button type="button" data-m="kitchen" aria-pressed="false">fix chef, swap kitchens</button>
+  </div>
+  <div class="grid3" id="grid"></div>
+  <p class="explain" id="explain"></p>
+</div>
+
+<h2>6. How much does the kitchen matter?</h2>
+
+<p>Sometimes a lot:</p>
+
+<div class="panel">
+  <div class="panel-title">same model, same harness, one setting changed</div>
+  <p style="margin:0 0 0.4rem;font-size:0.88rem">Shortening old tool results as the context fills up. Complete SWE-bench Verified solutions under a tight context window:</p>
+  <div class="bars">
+    <div class="brow"><span class="k">full history</span><div class="bar lo"><i style="width:25.4%"></i><span>43 / 169</span></div></div>
+    <div class="brow"><span class="k">shortened history</span><div class="bar hi"><i style="width:42.6%"></i><span>72 / 169</span></div></div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-title">Harness-Bench: same models, different harnesses</div>
+  <div class="bars">
+    <div class="brow"><span class="k">NanoBot (best)</span><div class="bar hi"><i style="width:76.2%"></i><span>76.2</span></div></div>
+    <div class="brow"><span class="k">OpenClaw (worst)</span><div class="bar lo"><i style="width:52.4%"></i><span>52.4</span></div></div>
+  </div>
+  <p style="margin:0;font-size:0.88rem">That's a <strong>23.8-point</strong> gap between harnesses.</p>
+</div>
+
+<p>…and sometimes barely at all. In one bug-fixing study, Claude Code and GitHub Copilot running the same model showed no significant difference, but changing the model <em>did</em> matter.</p>
+
+<h2>7. The benchmarks worth knowing</h2>
+
+<ul>
+  <li><strong>Terminal-Bench</strong> is the big one for terminal agents. Version 4.0 (Aug 29, 2026) has 66 hard tasks, and the official leaderboard lists the harness for each entry. You can run it yourself with Harbor: <code>harbor run -d terminal-bench/terminal-bench@4.0.0</code></li>
+  <li><strong>SWE-bench Verified / Pro</strong> has agents fix real GitHub issues and grades only the final patch. Be wary of vendor numbers: Opus 4.5 scored about 45.9% in Scale's standardized run and about 50–52% in a harness vendor's own comparison.</li>
+  <li><strong>Harness-Bench</strong> is built specifically to compare harnesses: fixed tasks, sandbox, budget, timeout, and grader, with only the harness changing.</li>
+</ul>
+
+<h3>Terminal-Bench 4.0, official leaderboard (as of late Sep 2026)</h3>
+
+<div class="bars">
+  <div class="brow"><span class="k">GPT-6 Astra · Codex</span><div class="bar"><i style="width:58.18%"></i><span>58.18%</span></div></div>
+  <div class="brow"><span class="k">Fable 5 · Claude Code</span><div class="bar"><i style="width:44.55%"></i><span>44.55%</span></div></div>
+  <div class="brow"><span class="k">Gemini 3.8 Flash</span><div class="bar"><i style="width:19.09%"></i><span>19.09%</span></div></div>
+</div>
+
+<p><span class="step-q">Notice a pattern?</span> The top entries run in the model maker's <em>own</em> harness. Labs train their models while using their own harness, so the chef is used to that kitchen.</p>
+
+<div class="stats">
+  <div class="stat"><b>76.4%</b><span>Meta-Harness on TB 2.0: a harness <em>found by automated search</em></span></div>
+  <div class="stat"><b>2–5</b><span>turns it saves by snapshotting the environment up front</span></div>
+  <div class="stat"><b>87.6 → 19.7</b><span>one model's score when TB 4.0 re-ranked everyone</span></div>
+</div>
+
+<div class="warn">
+  <div class="panel-title">Before trusting any leaderboard</div>
+  <ul>
+    <li>Every score is a <strong>model + harness</strong> pair. Read the harness first.</li>
+    <li>Scores from different versions (2.0 / 2.1 / 4.0) aren't comparable.</li>
+    <li>Vendor-run comparisons tend to put the vendor's own agent on top.</li>
+    <li>Benchmark-tuned models can crash on a harder refresh ("benchmaxxing").</li>
+  </ul>
+</div>
+
+<h2>8. So what should I actually do?</h2>
+
+<ol>
+  <li>Pick the <strong>model</strong> first.</li>
+  <li>Start with its native harness (Claude Code for Claude, Codex for GPT).</li>
+  <li>Reach for a minimal harness like Pi when you want control, no hidden behavior, or model-agnostic setups. I found no clean head-to-head score for Pi against the big harnesses, so don't assume it wins or loses.</li>
+  <li>The benchmark that matters most is <strong>your own repo</strong>: take five tasks you've already done and run them through two harnesses.</li>
+</ol>
+
+<h2>Sources</h2>
+
+<h3>Pi</h3>
+<ul class="src">
+  <li><a href="https://mariozechner.at/posts/2025-11-30-pi-coding-agent/">What I learned building an opinionated and minimal coding agent</a> — Mario Zechner</li>
+  <li><a href="https://www.npmjs.com/package/@mariozechner/pi-coding-agent">@mariozechner/pi-coding-agent</a> — npm README</li>
+  <li><a href="https://newsletter.pragmaticengineer.com/p/building-pi-and-what-makes-self-modifying">Building Pi, and what makes self-modifying software so fascinating</a> — The Pragmatic Engineer</li>
+  <li><a href="https://mlnotes.substack.com/p/slop-speed-and-discipline-hard-truths">Slop, Speed, and Discipline: Hard Truths About AI Coding Agents</a> — ML Notes (AI Engineer talk)</li>
+  <li><a href="https://github.com/devular/agent-tools">agent-tools</a> — minimal CLI tools vs MCP token costs</li>
+</ul>
+
+<h3>Benchmarks and leaderboards</h3>
+<ul class="src">
+  <li><a href="https://www.tbench.ai/">Terminal-Bench</a> — official site and leaderboard</li>
+  <li><a href="https://snorkel.ai/leaderboard/terminal-bench-4-0/">Terminal-Bench 4.0</a> and <a href="https://snorkel.ai/leaderboard/terminal-bench-2-1/">2.1</a> — Snorkel AI</li>
+  <li><a href="https://artificialanalysis.ai/evaluations/terminalbench-4-0">Terminal-Bench 4.0</a> — Artificial Analysis</li>
+  <li><a href="https://codingfleet.com/blog/terminal-bench-4-leaderboard-2026/">Terminal-Bench 4.0 leaderboard 2026</a> — CodingFleet</li>
+  <li><a href="https://flowtivity.ai/blog/terminal-bench-4-score-crash/">Terminal-Bench 4.0 exposes inflated AI scores</a> — Flowtivity</li>
+  <li><a href="https://github.com/stanford-iris-lab/meta-harness-tbench2-artifact">Meta-Harness</a> — 76.4% on Terminal-Bench 2.0</li>
+  <li><a href="https://github.com/TheLime1/harness-bench">Harness-Bench community leaderboard</a> — GitHub</li>
+</ul>
+
+<h3>Research on harness effects</h3>
+<ul class="src">
+  <li><a href="https://arxiv.org/abs/2608.26218">Same Model, Different Harness: Different Coding-Agent Results</a> — arXiv 2608.26218</li>
+  <li><a href="https://arxiv.org/abs/2605.27922">Harness-Bench: Measuring Harness Effects across Models</a> — arXiv 2605.27922</li>
+  <li><a href="https://arxiv.org/abs/2608.20851">BC-Bench: Evaluating Agentic Engineering in a DSL for ERP</a> — arXiv 2608.20851</li>
+  <li><a href="https://futureagi.com/blog/coding-agent-harness-benchmark/">Coding Agent Harness Benchmarks: Why the Harness Changes the Score</a> — Future AGI</li>
+</ul>
+
+<p class="meta">Written up from a Claude session, Sep 26, 2026.</p>
+
+<p class="end">✦</p>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- four tools ---------- */
+  var notes = {
+    read:  "Look at a file. <em>The chef reads the recipe card.</em>",
+    write: "Create or overwrite a file. <em>Put a new dish on the counter.</em>",
+    edit:  "Change part of a file in place. <em>Fix the seasoning without remaking the dish.</em>",
+    bash:  "Run any command. This is the escape hatch: tests, git, browser scripts, even another <code>pi</code> session as a sub-agent. <em>The stove plugs into every appliance.</em>"
+  };
+  var tools = document.getElementById("tools");
+  var note = document.getElementById("toolnote");
+  function showTool(k) {
+    Array.prototype.forEach.call(tools.children, function (b) {
+      b.setAttribute("aria-pressed", b.getAttribute("data-k") === k ? "true" : "false");
+    });
+    note.innerHTML = notes[k];
+  }
+  tools.addEventListener("click", function (e) {
+    var k = e.target.getAttribute && e.target.getAttribute("data-k");
+    if (k) showTool(k);
+  });
+  showTool("read");
+
+  /* ---------- chef / kitchen toggle ---------- */
+  var modes = {
+    chef: {
+      cells: [["same harness", "model A"], ["same harness", "model B"], ["same harness", "model C"]],
+      vary: 1,
+      text: "Measures models. Artificial Analysis runs every model through one simple harness (mini-swe-agent), so any difference comes from the model."
+    },
+    kitchen: {
+      cells: [["harness A", "same model"], ["harness B", "same model"], ["harness C", "same model"]],
+      vary: 0,
+      text: "Measures harnesses. Harness-Bench fixes the task, sandbox, budget, timeout, and grader, and only changes the harness."
+    }
+  };
+  var seg = document.getElementById("seg");
+  var grid = document.getElementById("grid");
+  var explain = document.getElementById("explain");
+  function showMode(m) {
+    Array.prototype.forEach.call(seg.children, function (b) {
+      b.setAttribute("aria-pressed", b.getAttribute("data-m") === m ? "true" : "false");
+    });
+    grid.innerHTML = "";
+    modes[m].cells.forEach(function (c) {
+      var d = document.createElement("div");
+      d.className = "cell";
+      c.forEach(function (t, i) {
+        var s = document.createElement("span");
+        s.className = "c " + (i === modes[m].vary ? "vary" : "fixed");
+        s.textContent = (i === 0 ? "🍳 " : "🧑‍🍳 ") + t;
+        d.appendChild(s);
+      });
+      grid.appendChild(d);
+    });
+    explain.textContent = modes[m].text;
+  }
+  seg.addEventListener("click", function (e) {
+    var m = e.target.getAttribute && e.target.getAttribute("data-m");
+    if (m) showMode(m);
+  });
+  showMode("chef");
+})();
+</script>
+</body>
+</html>
