@@ -3,11 +3,15 @@
 and refresh the per-section item counts on the homepage.
 
 Listing text comes from each entry page's <title>, with the trailing
-"— <site>" suffix (site name from CNAME) stripped. Sections in DATED also
-show each entry's <meta name="date" content="YYYY-MM-DD">, appended after
-the link.
+"— <site>" suffix (site name from CNAME) stripped. Every section in KINDS
+sorts by each entry's <meta name="date" content="YYYY-MM-DD"> (newest first)
+and shows that date appended after the link when present.
 
 Usage: update-listings.py [repo-root]  (defaults to cwd)
+
+Adding a new top-level section: add a key to KINDS (date-sorted listings
+follow automatically). Also add <section>/index.html, a homepage nav link,
+and extend .github/workflows/update-listings.yml paths/guard/git add.
 """
 import html
 import re
@@ -23,7 +27,6 @@ DATE_RE = re.compile(
     re.IGNORECASE,
 )
 KINDS = {"research": "report", "learning": "guide", "worklog": "entry"}
-DATED = {"worklog"}  # sections whose listings show each entry's date
 
 # Site name (from CNAME) is stripped off the end of entry titles for listings,
 # e.g. "GoDaddy → Cloudflare — notes.rr2.dev" becomes "GoDaddy → Cloudflare".
@@ -67,32 +70,30 @@ def fmt_date(iso: str) -> str:
     return f"{d:%b} {d.day}, {d:%Y}"
 
 
-def line_for(name: str, slug: str, dated: bool) -> str:
+def line_for(name: str, slug: str) -> str:
     page = ROOT / name / slug / "index.html"
     li = f'<li><a href="/{name}/{slug}/">{html.escape(title_of(page, slug))}</a>'
-    if dated:
-        d = fmt_date(date_iso_of(page))
-        if d:
-            li += f" — {html.escape(d)}"
+    d = fmt_date(date_iso_of(page))
+    if d:
+        li += f" — {html.escape(d)}"
     return f"  {li}</li>"
 
 
 def update(name: str) -> bool:
     base = ROOT / name
     kind = KINDS[name]
-    dated = name in DATED
     slugs = slug_dirs(base)
-    if dated:
-        # Newest first by date; undated entries fall to the end, slug order kept
-        # among equal dates (slug_dirs is already sorted and the sort is stable).
-        slugs.sort(key=lambda s: date_iso_of(base / s / "index.html"), reverse=True)
+    # Newest first by date; undated entries fall to the end, slug order kept
+    # among equal dates (slug_dirs is already sorted and the sort is stable).
+    slugs.sort(key=lambda s: date_iso_of(base / s / "index.html"), reverse=True)
     if slugs:
-        items = "\n".join(line_for(name, s, dated) for s in slugs)
+        items = "\n".join(line_for(name, s) for s in slugs)
     else:
         items = "  <li><em>Nothing here yet.</em></li>"
     block = (
         "<ul>\n"
-        f'  <!-- one <li> per {kind}: <li><a href="/{name}/slug/">Title</a></li> -->\n'
+        f'  <!-- one <li> per {kind}: '
+        f'<li><a href="/{name}/slug/">Title</a> — Mmm D, YYYY</li> -->\n'
         f"{items}\n"
         "</ul>"
     )
