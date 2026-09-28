@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Phone Showroom, day 1: from sketches to a 3D table — notes.rr2.dev</title>
+<meta name="description" content="Day 1 of Rahul's 3D showroom of every phone he has owned: nine mockups, one round table, and five phones you can pick up and open.">
+<meta name="date" content="2026-09-28">
+<style>
+  html { background: #fff; color: #111; }
+  body { max-width: 38rem; margin: 4rem auto; padding: 0 1.25rem;
+         font: 1rem/1.6 Georgia, 'Times New Roman', serif; }
+  h1 { font-size: 1.5rem; font-weight: normal; margin: 0 0 0.25rem; }
+  h2 { font-size: 1.1rem; font-weight: normal; margin: 2rem 0 0.5rem; }
+  hr { border: 0; border-top: 1px solid #111; margin: 1.5rem 0; }
+  a { color: #111; }
+  .meta { font-style: italic; }
+  ul { padding-left: 1.25rem; }
+  li { margin-bottom: 0.35rem; }
+  figure { margin: 1.25rem 0; }
+  figcaption { font-size: 0.9rem; margin-top: 0.35rem; }
+  figure img { display: block; width: 100%; height: auto; border: 1px solid #ddd; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.25rem 0; }
+  .grid figure { margin: 0; }
+  .grid figcaption { font-size: 0.85rem; }
+  @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<h1>My Phone Showroom, day 1: from sketches to a 3D table</h1>
+<p class="meta">Sep 28, 2026 — <a href="/worklog/">Worklog</a> • <a href="/">Home</a>.</p>
+
+<hr>
+
+<p>Rahul wanted one page for every phone he has owned. Five personal phones since 2010. Today it went from "what if" to a working 3D room: a round showroom table, one stand per phone, and you can pick any phone up, turn it around and open it.</p>
+
+<p>Live at <a href="https://phones.rr2.dev">phones.rr2.dev</a>. Code: <a href="https://github.com/r-r-2/phones">r-r-2/phones</a>. Built with Claude Opus 5.5.</p>
+
+<h2>Where it ended up</h2>
+
+<figure>
+  <img alt="A round white marble table in a wooden room. The iPhone 13 mini stands in front on a small stand, other phones around the table. A phone list on the left, a spec panel on the right." src="final-start.jpg">
+  <figcaption>The start view. The newest phone faces you, the rest wait around the table.</figcaption>
+</figure>
+
+<ul>
+  <li>Five phones: Motorola SLVR L7e (2010), Karbonn A7 (2012), Moto E (2014), Redmi Note 3 (2016), iPhone 13 mini (2022).</li>
+  <li>An empty stand after the iPhone. Rahul is thinking about a new phone.</li>
+  <li>Four company phones on a smaller table at the back.</li>
+  <li>Every phone is built at its real size, so the lineup is to scale.</li>
+</ul>
+
+<h2>Nine mockups before any code</h2>
+
+<p>Nothing got built until the look felt right. These are the directions Rahul went through, in order.</p>
+
+<div class="grid">
+  <figure>
+    <img alt="Dark page with a scrolling timeline on the left, a white phone in the middle showing a boot screen, spec bars on the right." src="mock-1-timeline.jpg">
+    <figcaption>1. Scroll timeline with a boot-screen animation.</figcaption>
+  </figure>
+  <figure>
+    <img alt="Five phone outlines side by side at true scale, with small spec trend charts below." src="mock-2-lineup.jpg">
+    <figcaption>2. The lineup at true scale, with spec trends.</figcaption>
+  </figure>
+  <figure>
+    <img alt="The same timeline with a purple holographic glow and gradient spec bars." src="mock-3-holographic.jpg">
+    <figcaption>3. Holographic. Too much. Dropped.</figcaption>
+  </figure>
+  <figure>
+    <img alt="Light workbench page on graph paper with the Karbonn A7 back and a 'Pop the back cover' button." src="mock-4-workbench.jpg">
+    <figcaption>4. Workbench: pop the back cover and look inside.</figcaption>
+  </figure>
+  <figure>
+    <img alt="Workbench page with a red iPhone 13 mini and an 'Open it up' button." src="mock-5-workbench-iphone.jpg">
+    <figcaption>5. Same workbench, iPhone 13 mini.</figcaption>
+  </figure>
+  <figure>
+    <img alt="The iPhone opened, with labelled dots on the chip, battery and camera linked to spec rows." src="mock-6-teardown.jpg">
+    <figcaption>6. Teardown: dots on the parts link to the specs.</figcaption>
+  </figure>
+  <figure>
+    <img alt="Blue blueprint page with the iPhone drawn with dimension lines." src="mock-7-blueprint.jpg">
+    <figcaption>7. Blueprint theme.</figcaption>
+  </figure>
+  <figure>
+    <img alt="A store-style wooden table with all phones standing in a row." src="mock-8-store.jpg">
+    <figcaption>8. Electronics store table.</figcaption>
+  </figure>
+</div>
+
+<figure>
+  <img alt="A round white table with phones on stands in a circle, the iPhone in front, and a small second table in the background." src="mock-9-round-table.jpg">
+  <figcaption>9. The one Rahul picked: a round table. The camera circles to the next phone. Work phones get their own small table.</figcaption>
+</figure>
+
+<p>What got cut along the way:</p>
+<ul>
+  <li>Boot screens. The real ones couldn't be found, and fake ones felt wrong.</li>
+  <li>The holographic look.</li>
+  <li>The big faded year behind the phone.</li>
+  <li>The dotted "company phones era" line.</li>
+</ul>
+
+<p>What stayed: the year on the left of the list, neutral specs (numbers, no sentences), full 360° rotation, and the look inside.</p>
+
+<h2>Building it</h2>
+
+<p>Vite, Three.js and GSAP. The first build had only two phones, to check the idea.</p>
+
+<figure>
+  <img alt="First build: a pale grey room with wall shelves, a grey Redmi next to a dark placeholder interior with blue dots." src="build-1-first.jpg">
+  <figcaption>First build. Grey room, shelves on the walls, placeholder insides.</figcaption>
+</figure>
+
+<p>Then a round of fixes:</p>
+<ul>
+  <li><strong>Flicker</strong> when moving between phones. The floor and the room box were fighting for the same pixels. Split them apart.</li>
+  <li><strong>Looked like toys.</strong> Swapped the room for a wooden floor and walls, and marble white tables.</li>
+  <li><strong>Pink iPhone.</strong> The (PRODUCT)RED back came out pink, then brownish from the wood reflections. Phones now reflect a neutral studio light instead of the room.</li>
+  <li><strong>Specs hard to read.</strong> Now each spec shows the previous phone and this one as two bars, with a ▲ or ▼ jump.</li>
+</ul>
+
+<div class="grid">
+  <figure>
+    <img alt="Close-up of the iPhone back rendered pink with washed-out white lenses." src="build-2-pink.jpg">
+    <figcaption>The pink iPhone.</figcaption>
+  </figure>
+  <figure>
+    <img alt="The wooden room version with the iPhone 13 mini on the marble table." src="build-3-wood.jpg">
+    <figcaption>Wood and marble.</figcaption>
+  </figure>
+</div>
+
+<h2>Looking inside</h2>
+
+<p>The insides are 3D parts built in code. Rahul used iFixit teardown photos as the reference for where things sit: board, shields, chip, flex cables, camera, battery. Open a phone and dots on the parts link to the spec panel. The battery lifts out.</p>
+
+<div class="grid">
+  <figure>
+    <img alt="The iPhone 13 mini opened from the front: logic board with the A15 on the left, battery on the right, Taptic Engine at the bottom." src="final-iphone-open.jpg">
+    <figcaption>iPhone 13 mini, display off.</figcaption>
+  </figure>
+  <figure>
+    <img alt="The Redmi Note 3 opened from the back: board at the top, the BM46 battery below." src="final-redmi-open.jpg">
+    <figcaption>Redmi Note 3, back off.</figcaption>
+  </figure>
+  <figure>
+    <img alt="The Karbonn A7 with its battery lifted out, showing two SIM holders and a microSD slot." src="final-karbonn-battery.jpg">
+    <figcaption>Karbonn A7, battery out. Two SIM slots.</figcaption>
+  </figure>
+  <figure>
+    <img alt="The Motorola SLVR L7e held up, showing its small screen and flat metal keypad." src="final-slvr-held.jpg">
+    <figcaption>SLVR L7e, the flat metal keypad.</figcaption>
+  </figure>
+</div>
+
+<p>Small touches: the Karbonn and Moto E carry a "Custom ROMs" tag, because Rahul flashed both of them. And the view from above shows the whole table at once.</p>
+
+<figure>
+  <img alt="Top-down view of the round table with the phones on stands around the edge." src="final-overhead.jpg">
+  <figcaption>View from above.</figcaption>
+</figure>
+
+<h2>Next</h2>
+<ul>
+  <li>Make it more realistic.</li>
+  <li>Redo the spec sheet. Rahul isn't happy with how it looks yet.</li>
+  <li>Fill the empty stand. Rahul needs to buy a new phone soon.</li>
+</ul>
+
+<p class="meta">This note was generated in a Claude session (Opus 5.5).</p>
+
+</body>
+</html>
