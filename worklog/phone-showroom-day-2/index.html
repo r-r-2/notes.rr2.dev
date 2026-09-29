@@ -11,7 +11,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My Phone Showroom, day 2: tracing phones from photos — notes.rr2.dev</title>
-<meta name="description" content="Day 2 of Rahul's 3D phone showroom: work phones you can open, a mobile layout, and two phones rebuilt millimetre by millimetre from their product photos.">
+<meta name="description" content="Day 2 of Rahul's 3D phone showroom: how far AI could push two phones towards the real thing, traced millimetre by millimetre from their product photos.">
 <meta name="date" content="2026-09-29">
 <style>
   html { background: #fff; color: #111; }
@@ -19,6 +19,7 @@
          font: 1rem/1.6 Georgia, 'Times New Roman', serif; }
   h1 { font-size: 1.5rem; font-weight: normal; margin: 0 0 0.25rem; }
   h2 { font-size: 1.1rem; font-weight: normal; margin: 2rem 0 0.5rem; }
+  h3 { font-size: 1rem; font-style: italic; font-weight: normal; margin: 1.5rem 0 0.5rem; }
   hr { border: 0; border-top: 1px solid #111; margin: 1.5rem 0; }
   a { color: #111; }
   .meta { font-style: italic; }
@@ -44,43 +45,24 @@
 
 <hr>
 
-<p>Day 1 ended with one goal for the next day: make it more realistic. Day 2 started with smaller jobs (work phones, mobile, fixes) and ended with a new way of building the phones: tracing them from their real product photos, millimetre by millimetre.</p>
+<p>Day 1 ended with one goal: make it more realistic. Day 2 was mostly about that, and about how far AI could take it.</p>
 
 <p>Live at <a href="https://phones.rr2.dev">phones.rr2.dev</a>. Code: <a href="https://github.com/r-r-2/phones">r-r-2/phones</a>. Built with Claude Opus 5.5. <a href="/worklog/phone-showroom-day-1/">Day 1 is here.</a></p>
 
-<h2>Work phones you can open</h2>
-
-<p>The four company phones on the small table were plain placeholders. Now each one has its own body and its own insides, laid out after iFixit teardowns: the iPhone 6 Plus with its antenna lines and home button, the 7 Plus with the dual-camera bump, the 11 with the square camera, the 13 in Midnight. They compare their specs with the previous company phone, the same way the personal ones do.</p>
-
-<figure>
-  <img alt="The iPhone 6 Plus and iPhone 11 on the work table: on the stand, held, from the back, and opened with the battery beside them." src="work-phones.jpg">
-  <figcaption>iPhone 6 Plus (top) and iPhone 11 (bottom): on the stand, in hand, from the back, opened.</figcaption>
-</figure>
-
-<h2>Phones, too</h2>
-
-<p>The site didn't work on a phone. Now the phone list is one strip you swipe along, with a "Work phones" chip at the end, and the specs sit in a sheet at the bottom that stays closed until you open it. A short note on first load explains how to get around, then goes away by itself. The footer says who built it.</p>
-
-<figure>
-  <img alt="Two phone-sized screenshots: the welcome note on first load, and the iPhone 13 mini on its stand with the swipeable phone list at the top." src="mobile.jpg">
-  <figcaption>The welcome note, and browsing on a phone.</figcaption>
-</figure>
-
-<h2>A round of fixes</h2>
-
+<h2>Smaller things first</h2>
 <ul>
-  <li><strong>The battery merged into the back cover</strong> on the phones that open from the back. Both slid out to the same side. Now the cover goes right and the battery lifts out to the left.</li>
-  <li><strong>Thickness.</strong> Every phone was checked against its listed size. The rounded edge had been adding about a millimetre to width and height; now each body measures exactly what it should.</li>
-  <li><strong>Corners poking out</strong> on the work iPhones. Square parts inside were showing through the big rounded corners. Everything inside is now trimmed to the shape of the frame.</li>
-  <li><strong>The dots are gone.</strong> Opening a phone used to show dots on the parts, linked to the specs. Rahul decided they weren't adding much, so opening a phone now just shows the insides.</li>
+  <li>The four company phones got their own bodies and insides, and can be opened.</li>
+  <li>The site works on a phone: a swipeable phone list, specs in a bottom sheet.</li>
+  <li>A short how-to note on first load, and "Built by Rahul" in the footer.</li>
+  <li>Fixes: the battery no longer merges into the cover, every phone matches its listed size, nothing pokes out of the iPhone corners.</li>
+  <li>The dots on the parts inside are gone.</li>
 </ul>
 
-<figure>
-  <img alt="The Redmi Note 3 opened from the back, showing the board and battery, with no dots or labels." src="redmi-open.jpg">
-  <figcaption>The Redmi Note 3 opened, without the dots.</figcaption>
-</figure>
+<h2>Pushing AI on realism</h2>
 
-<h2>The SLVR didn't look like the SLVR</h2>
+<p>The rest of the day was an experiment. Rahul wanted to see how far AI could push these phones towards the real thing, with the models still built in code and no hand modelling.</p>
+
+<h3>Motorola SLVR L7e: about 4 hours</h3>
 
 <p>Rahul looked at the Motorola SLVR and said it wasn't his phone. It had been built as the silver SLVR L7. His was the L7e, the navy one.</p>
 
@@ -93,7 +75,7 @@
   <li>Place each one in the model at exactly that position. The flat details are painted onto the surfaces; the parts that stick out are built in 3D.</li>
 </ul>
 
-<p>Then one more round. Rahul remembered the SLVR as sleeker. The size was already right (11.5 mm), but rounded sides, one solid band and parts standing out made it look thick. Flat sides, a fine groove between the two halves, and nearly flush parts fixed that.</p>
+<p>That took three rounds of feedback. The last: Rahul remembered the SLVR as sleeker. The size was already right (11.5 mm), but rounded sides, one solid band and parts standing out made it look thick. Flat sides, a fine groove between the two halves, and nearly flush parts fixed that.</p>
 
 <div class="pair">
   <figure>
@@ -106,9 +88,9 @@
   </figure>
 </div>
 
-<h2>The Karbonn, the same way</h2>
+<h3>Karbonn A7: about an hour</h3>
 
-<p>Next was the Karbonn A7. The morning version was a guess from a few small pictures. The traced one used front, back and side photos.</p>
+<p>With the method settled, the Karbonn went much faster. The morning version was a guess from a few small pictures; this one used front, back and side photos.</p>
 
 <ul>
   <li><strong>The real width.</strong> Spec sites list 50 mm, which can't fit a 3.5" screen. The photos say 60 mm.</li>
@@ -132,6 +114,8 @@
   <img alt="The Karbonn A7 opened: the white back cover slid to the side, the battery lifted out, two SIM holders visible." src="karbonn-open.jpg">
   <figcaption>The whole white cover comes off, then the battery.</figcaption>
 </figure>
+
+<p>Rahul was happy with where both ended up, given the limits of building them in code. Getting closer would need different tools, not more tries.</p>
 
 <h2>Next</h2>
 <ul>
