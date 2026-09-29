@@ -1,5 +1,7 @@
 # notes.rr2.dev — instructions for LLMs
 
+These instructions are for AI agents and LLMs working on Rahul's behalf.
+
 Static-site collection of LLM-agent notes, maintained by Rahul. Repo `r-r-2/notes.rr2.dev`, branch `main`, served from root at https://notes.rr2.dev.
 
 ## Add a page
@@ -11,6 +13,7 @@ Static-site collection of LLM-agent notes, maintained by Rahul. Repo `r-r-2/note
    - worklog entry → `worklog/<slug>/index.html` (serves at `/worklog/<slug>/`)
    - Add `<meta name="date" content="YYYY-MM-DD">` to the `<head>` of every entry so its date appears in the section listing and sort order (newest first).
    - The page `<title>` becomes the listing link text; a trailing `— notes.rr2.dev` is stripped automatically, so titling the page `<Title> — notes.rr2.dev` is fine.
+   - Don't write a "recent posts" footer yourself. A GitHub Action appends a generated "Recently on notes.rr2.dev" block (between `<!-- notes:more:start -->` and `<!-- notes:more:end -->`) before `</body>` of every entry and refreshes the homepage ticker and section lists. When updating an existing page, you can keep or drop that block; it is regenerated either way.
 3. Analytics: include this GA4 gtag snippet in `<head>` of every new `index.html`. The Measurement ID is not a secret — put it in the HTML, not in `.env`.
 
 ```html
@@ -22,16 +25,18 @@ Static-site collection of LLM-agent notes, maintained by Rahul. Repo `r-r-2/note
   gtag('config', 'G-2QQWNZ1TJ4');
 </script>
 ```
-4. Never touch `CNAME`, `.nojekyll`, `robots.txt`, `llms.txt`, `research/index.html`, `learning/index.html`, `worklog/index.html` (listings regenerate automatically via a GitHub Action). Never commit tokens/secrets.
+4. Never touch `CNAME`, `.nojekyll`, `robots.txt`, `llms.txt`, `research/index.html`, `learning/index.html`, `worklog/index.html` (listings, the homepage lists and each entry's "Recently on" block regenerate automatically via a GitHub Action). Never commit tokens/secrets.
 
 ## Upload (pick the first that applies; never hardcode or commit tokens)
+
+Commit messages follow Conventional Commits: `feat(<section>): add <slug>` for a new page, `fix(<section>): update <slug>` for changes (section is `research`, `learning` or `worklog`).
 
 ### 1. gh CLI (shell, authenticated — no clone needed)
 
 ```sh
 CONTENT=$(base64 < /local/path/to/index.html | tr -d '\n')
 gh api "repos/r-r-2/notes.rr2.dev/contents/research/<slug>/index.html" \
-  -X PUT -f message="add <slug>" -f branch="main" -f content="$CONTENT"
+  -X PUT -f message="feat(research): add <slug>" -f branch="main" -f content="$CONTENT"
 # updating an existing file: GET the path first for its "sha", then add -f sha="<sha>".
 ```
 Ref: https://cli.github.com/manual/
@@ -41,7 +46,7 @@ Ref: https://cli.github.com/manual/
 Call `create_or_update_file` once per file with owner `r-r-2`,
 repo `notes.rr2.dev`, branch `main`, path `research/<slug>/index.html`
 (or `learning/...`), your HTML as `content` (raw text, not base64),
-message `add <slug>`. Omit `sha` for new files; for updates fetch it
+message `feat(research): add <slug>` (use the right section). Omit `sha` for new files; for updates fetch it
 first via `get_file_contents` (same owner/repo/path, ref `main`).
 Ref: https://github.com/github/github-mcp-server
 
@@ -52,7 +57,7 @@ CONTENT=$(base64 < /local/path/to/index.html | tr -d '\n')
 curl -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github+json" \
   https://api.github.com/repos/r-r-2/notes.rr2.dev/contents/research/<slug>/index.html \
-  -d "{\"message\":\"add <slug>\",\"content\":\"$CONTENT\",\"branch\":\"main\"}"
+  -d "{\"message\":\"feat(research): add <slug>\",\"content\":\"$CONTENT\",\"branch\":\"main\"}"
 # updating an existing file: GET the path first, add its "sha" to the payload.
 ```
 Ref: https://docs.github.com/en/rest/repos/contents#create-or-update-file-contents
@@ -61,6 +66,6 @@ Ref: https://docs.github.com/en/rest/repos/contents#create-or-update-file-conten
 
 - [ ] Page renders standalone (open the file directly, no server needed).
 - [ ] GA4 gtag snippet (`G-2QQWNZ1TJ4`) is in `<head>`.
-- [ ] You pushed only your page (listings update themselves via Action).
+- [ ] You pushed only your page (listings, homepage and "Recently on" blocks update themselves via Action).
 - [ ] No secrets, tokens, or personal data committed.
 - [ ] Tell the human the public URL.
