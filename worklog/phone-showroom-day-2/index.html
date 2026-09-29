@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Phone Showroom, day 2: tracing phones from photos — notes.rr2.dev</title>
+<meta name="description" content="Day 2 of Rahul's 3D phone showroom: work phones you can open, a mobile layout, and two phones rebuilt millimetre by millimetre from their product photos.">
+<meta name="date" content="2026-09-29">
+<style>
+  html { background: #fff; color: #111; }
+  body { max-width: 38rem; margin: 4rem auto; padding: 0 1.25rem;
+         font: 1rem/1.6 Georgia, 'Times New Roman', serif; }
+  h1 { font-size: 1.5rem; font-weight: normal; margin: 0 0 0.25rem; }
+  h2 { font-size: 1.1rem; font-weight: normal; margin: 2rem 0 0.5rem; }
+  hr { border: 0; border-top: 1px solid #111; margin: 1.5rem 0; }
+  a { color: #111; }
+  .meta { font-style: italic; }
+  ul { padding-left: 1.25rem; }
+  li { margin-bottom: 0.35rem; }
+  figure { margin: 1.25rem 0; }
+  figcaption { font-size: 0.9rem; margin-top: 0.35rem; }
+  figure img { display: block; width: 100%; height: auto; border: 1px solid #ddd; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.25rem 0; }
+  .grid figure { margin: 0; }
+  .grid figcaption { font-size: 0.85rem; }
+  .pair { display: grid; grid-template-columns: 1fr 2.6fr; gap: 1rem; align-items: end; margin: 1.25rem 0; }
+  .pair figure { margin: 0; }
+  .pair figcaption { font-size: 0.85rem; }
+  @media (max-width: 520px) { .pair { grid-template-columns: 1fr; } }
+  @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<h1>My Phone Showroom, day 2: tracing phones from photos</h1>
+<p class="meta">Sep 29, 2026 — <a href="/worklog/">Worklog</a> • <a href="/">Home</a>.</p>
+
+<hr>
+
+<p>Day 1 ended with one goal for the next day: make it more realistic. Day 2 started with smaller jobs (work phones, mobile, fixes) and ended with a new way of building the phones: tracing them from their real product photos, millimetre by millimetre.</p>
+
+<p>Live at <a href="https://phones.rr2.dev">phones.rr2.dev</a>. Code: <a href="https://github.com/r-r-2/phones">r-r-2/phones</a>. Built with Claude Opus 5.5. <a href="/worklog/phone-showroom-day-1/">Day 1 is here.</a></p>
+
+<h2>Work phones you can open</h2>
+
+<p>The four company phones on the small table were plain placeholders. Now each one has its own body and its own insides, laid out after iFixit teardowns: the iPhone 6 Plus with its antenna lines and home button, the 7 Plus with the dual-camera bump, the 11 with the square camera, the 13 in Midnight. They compare their specs with the previous company phone, the same way the personal ones do.</p>
+
+<figure>
+  <img alt="The iPhone 6 Plus and iPhone 11 on the work table: on the stand, held, from the back, and opened with the battery beside them." src="work-phones.jpg">
+  <figcaption>iPhone 6 Plus (top) and iPhone 11 (bottom): on the stand, in hand, from the back, opened.</figcaption>
+</figure>
+
+<h2>Phones, too</h2>
+
+<p>The site didn't work on a phone. Now the phone list is one strip you swipe along, with a "Work phones" chip at the end, and the specs sit in a sheet at the bottom that stays closed until you open it. A short note on first load explains how to get around, then goes away by itself. The footer says who built it.</p>
+
+<figure>
+  <img alt="Two phone-sized screenshots: the welcome note on first load, and the iPhone 13 mini on its stand with the swipeable phone list at the top." src="mobile.jpg">
+  <figcaption>The welcome note, and browsing on a phone.</figcaption>
+</figure>
+
+<h2>A round of fixes</h2>
+
+<ul>
+  <li><strong>The battery merged into the back cover</strong> on the phones that open from the back. Both slid out to the same side. Now the cover goes right and the battery lifts out to the left.</li>
+  <li><strong>Thickness.</strong> Every phone was checked against its listed size. The rounded edge had been adding about a millimetre to width and height; now each body measures exactly what it should.</li>
+  <li><strong>Corners poking out</strong> on the work iPhones. Square parts inside were showing through the big rounded corners. Everything inside is now trimmed to the shape of the frame.</li>
+  <li><strong>The dots are gone.</strong> Opening a phone used to show dots on the parts, linked to the specs. Rahul decided they weren't adding much, so opening a phone now just shows the insides.</li>
+</ul>
+
+<figure>
+  <img alt="The Redmi Note 3 opened from the back, showing the board and battery, with no dots or labels." src="redmi-open.jpg">
+  <figcaption>The Redmi Note 3 opened, without the dots.</figcaption>
+</figure>
+
+<h2>The SLVR didn't look like the SLVR</h2>
+
+<p>Rahul looked at the Motorola SLVR and said it wasn't his phone. It had been built as the silver SLVR L7. His was the L7e, the navy one.</p>
+
+<p>A first rebuild got the colour right but still didn't look like the real phone. So Rahul asked the bigger question: how do you get a 1:1 copy? Of the options (tracing from photos, a 3D scan, a ready-made 3D model, better code), he picked keeping the models in code but tracing them from real photos.</p>
+
+<p>The method:</p>
+<ul>
+  <li>Take the manufacturer's front and back photos and scale them to the phone's real size, so pixels become millimetres.</li>
+  <li>Measure every feature on the photo: the outline, the keypad, the logo, the camera, each key.</li>
+  <li>Place each one in the model at exactly that position. The flat details are painted onto the surfaces; the parts that stick out are built in 3D.</li>
+</ul>
+
+<p>Then one more round. Rahul remembered the SLVR as sleeker. The size was already right (11.5 mm), but rounded sides, one solid band and parts standing out made it look thick. Flat sides, a fine groove between the two halves, and nearly flush parts fixed that.</p>
+
+<div class="pair">
+  <figure>
+    <img alt="Day 1's SLVR: a silver keypad phone held up." src="slvr-day1.jpg">
+    <figcaption>Day 1: the wrong SLVR.</figcaption>
+  </figure>
+  <figure>
+    <img alt="The traced SLVR L7e: navy front with the blue keypad, a slim side view, the back with the camera window and Motorola logo, and an angled view." src="slvr-traced.jpg">
+    <figcaption>Day 2: the navy L7e, traced from its photos. Front, side, back.</figcaption>
+  </figure>
+</div>
+
+<h2>The Karbonn, the same way</h2>
+
+<p>Next was the Karbonn A7. The morning version was a guess from a few small pictures. The traced one used front, back and side photos.</p>
+
+<ul>
+  <li><strong>The real width.</strong> Spec sites list 50 mm, which can't fit a 3.5" screen. The photos say 60 mm.</li>
+  <li><strong>The side photo showed the layers:</strong> a black glass front, a silver band, and a white back cover that rounds off like a pebble.</li>
+  <li><strong>The cover comes off</strong> as a whole, like on the real phone, leaving the silver band and the insides.</li>
+  <li><strong>The details:</strong> the red ring round the camera, twin flash, the chin that leans back, and a white button with a dark textured half.</li>
+</ul>
+
+<div class="pair">
+  <figure>
+    <img alt="The morning's Karbonn: grey glass front with a white chin, plain white back." src="karbonn-before.jpg">
+    <figcaption>Morning: a guess.</figcaption>
+  </figure>
+  <figure>
+    <img alt="The traced Karbonn A7: white front with black glass, slim side, white back with the red camera ring, and an angled view." src="karbonn-traced.jpg">
+    <figcaption>Evening: traced from its photos.</figcaption>
+  </figure>
+</div>
+
+<figure>
+  <img alt="The Karbonn A7 opened: the white back cover slid to the side, the battery lifted out, two SIM holders visible." src="karbonn-open.jpg">
+  <figcaption>The whole white cover comes off, then the battery.</figcaption>
+</figure>
+
+<h2>Next</h2>
+<ul>
+  <li>Try Blender for the bodies: same measurements, but real curved surfaces and soft shadows baked in. The Karbonn goes first.</li>
+  <li>Try free, openly licensed 3D models for the common phones (the iPhones, the Redmi, the Moto E), with credit to their makers.</li>
+  <li>Trace the rest: Moto E, Redmi Note 3, iPhone 13 mini.</li>
+  <li>Still pending: the spec sheet redesign, and filling the empty stand.</li>
+</ul>
+
+<p class="meta">This note was generated in a Claude session (Opus 5.5).</p>
+
+</body>
+</html>
