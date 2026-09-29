@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Phone Showroom, day 2: tracing phones from photos — notes.rr2.dev</title>
+<meta name="description" content="Day 2 of the 3D phone showroom: how far AI could push two phones towards the real thing, traced millimetre by millimetre from their product photos.">
+<meta name="date" content="2026-09-29">
+<style>
+  html { background: #fff; color: #111; }
+  body { max-width: 38rem; margin: 4rem auto; padding: 0 1.25rem;
+         font: 1rem/1.6 Georgia, 'Times New Roman', serif; }
+  h1 { font-size: 1.5rem; font-weight: normal; margin: 0 0 0.25rem; }
+  h2 { font-size: 1.1rem; font-weight: normal; margin: 2rem 0 0.5rem; }
+  h3 { font-size: 1rem; font-style: italic; font-weight: normal; margin: 1.5rem 0 0.5rem; }
+  hr { border: 0; border-top: 1px solid #111; margin: 1.5rem 0; }
+  a { color: #111; }
+  .meta { font-style: italic; }
+  ul { padding-left: 1.25rem; }
+  li { margin-bottom: 0.35rem; }
+  figure { margin: 1.25rem 0; }
+  figcaption { font-size: 0.9rem; margin-top: 0.35rem; }
+  figure img { display: block; width: 100%; height: auto; border: 1px solid #ddd; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.25rem 0; }
+  .grid figure { margin: 0; }
+  .grid figcaption { font-size: 0.85rem; }
+  .pair { display: grid; grid-template-columns: 1fr 2.6fr; gap: 1rem; align-items: end; margin: 1.25rem 0; }
+  .pair figure { margin: 0; }
+  .pair figcaption { font-size: 0.85rem; }
+  @media (max-width: 520px) { .pair { grid-template-columns: 1fr; } }
+  @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<h1>My Phone Showroom, day 2: tracing phones from photos</h1>
+<p class="meta">Sep 29, 2026 — <a href="/worklog/">Worklog</a> • <a href="/">Home</a>.</p>
+
+<hr>
+
+<p>Day 1 ended with one goal: make it more realistic. Day 2 was mostly about that, and about how far AI could take it.</p>
+
+<p>Live at <a href="https://phones.rr2.dev">phones.rr2.dev</a>. Code: <a href="https://github.com/r-r-2/phones">r-r-2/phones</a>. Built with Claude Opus 5.5. <a href="/worklog/phone-showroom-day-1/">Day 1 is here.</a></p>
+
+<h2>Smaller things first</h2>
+<ul>
+  <li>The four company phones got their own bodies and insides, and can be opened.</li>
+  <li>The site works on a phone: a swipeable phone list, specs in a bottom sheet.</li>
+  <li>A short how-to note on first load.</li>
+  <li>Fixes: the battery no longer merges into the cover, every phone matches its listed size, nothing pokes out of the iPhone corners.</li>
+  <li>The dots on the parts inside are gone.</li>
+</ul>
+
+<h2>Pushing AI on realism</h2>
+
+<p>The rest of the day was an experiment: how far can AI push these phones towards the real thing, with the models still built in code and no hand modelling?</p>
+
+<h3>Motorola SLVR L7e</h3>
+
+<p>The first problem was the wrong phone. The SLVR had been built as the silver SLVR L7; the one owned was the L7e, the navy one.</p>
+
+<p>The method:</p>
+<ul>
+  <li>Take the manufacturer's front and back photos and scale them to the phone's real size, so pixels become millimetres.</li>
+  <li>Measure every feature on the photo: the outline, the keypad, the logo, the camera, each key.</li>
+  <li>Place each one in the model at exactly that position. The flat details are painted onto the surfaces; the parts that stick out are built in 3D.</li>
+</ul>
+
+<p>One more round: the real SLVR was sleeker. The size was already right (11.5 mm), but rounded sides, one solid band and parts standing out made it look thick. Flat sides, a fine groove between the two halves, and nearly flush parts fixed that.</p>
+
+<div class="pair">
+  <figure>
+    <img alt="Day 1's SLVR: a silver keypad phone held up." src="slvr-day1.jpg">
+    <figcaption>Day 1: the wrong SLVR.</figcaption>
+  </figure>
+  <figure>
+    <img alt="The traced SLVR L7e: navy front with the blue keypad, a slim side view, the back with the camera window and Motorola logo, and an angled view." src="slvr-traced.jpg">
+    <figcaption>Day 2: the navy L7e, traced from its photos. Front, side, back.</figcaption>
+  </figure>
+</div>
+
+<h3>Karbonn A7</h3>
+
+<p>Then the Karbonn, the same way. The morning version was a guess from a few small pictures; this one used front, back and side photos.</p>
+
+<p>The detail that makes it a Karbonn: the red ring round the camera.</p>
+
+<div class="pair">
+  <figure>
+    <img alt="The morning's Karbonn: grey glass front with a white chin, plain white back." src="karbonn-before.jpg">
+    <figcaption>Morning: a guess.</figcaption>
+  </figure>
+  <figure>
+    <img alt="The traced Karbonn A7: white front with black glass, slim side, white back with the red camera ring, and an angled view." src="karbonn-traced.jpg">
+    <figcaption>Evening: traced from its photos.</figcaption>
+  </figure>
+</div>
+
+<p>An interesting experiment in how far code alone can push realism. Next step: better tools.</p>
+
+<h2>Next</h2>
+<ul>
+  <li>Try Blender for the bodies: same measurements, but real curved surfaces and soft shadows baked in. The Karbonn goes first.</li>
+  <li>Try free, openly licensed 3D models for the common phones (the iPhones, the Redmi, the Moto E), with credit to their makers.</li>
+  <li>Trace the rest: Moto E, Redmi Note 3, iPhone 13 mini.</li>
+  <li>Still pending: the spec sheet redesign, and filling the empty stand.</li>
+</ul>
+
+</body>
+</html>
