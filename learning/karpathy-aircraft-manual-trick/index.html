@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Karpathy's aircraft manual trick for LLMs — notes.rr2.dev</title>
+<meta name="date" content="2026-10-04">
+<meta name="description" content="Why Karpathy asks LLMs to write in ASD-STE100, the plain-English rulebook from aircraft maintenance manuals.">
+<style>
+:root{
+  --bg:#ffffff; --fg:#111111; --muted:#5f5a55; --rule:#e4e0db; --soft:#f6f4f1;
+  --rust:#b5532a; --moss:#5b7a3a; --ink:#2b4c7e;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#141414; --fg:#ece9e4; --muted:#a39d96; --rule:#2e2b28; --soft:#1d1c1a;
+  --rust:#e08a62; --moss:#9cc072; --ink:#8fb1e6; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Georgia,"Times New Roman",serif;font-size:19px;line-height:1.65;padding:40px 18px 80px}
+main{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:34px}
+h1,h2{line-height:1.2;text-wrap:balance;margin:0;font-weight:normal}
+h1{font-size:2.1rem}
+h2{font-size:1.4rem}
+p{margin:0}
+section{display:flex;flex-direction:column;gap:14px}
+.small{font-size:.85rem;color:var(--muted)}
+a{color:var(--ink)}
+.back{font-size:.9rem;color:var(--muted)}
+
+blockquote{margin:0;padding:16px 18px;border-left:3px solid var(--ink);background:var(--soft);display:flex;flex-direction:column;gap:10px}
+blockquote footer{font-size:.85rem;color:var(--muted)}
+
+.key{border-left:3px solid var(--rust);padding:4px 0 4px 16px}
+.key b{color:var(--rust)}
+
+/* before / after */
+.ba{display:grid;gap:10px}
+.ba div{padding:12px 14px;background:var(--soft);border-radius:4px}
+.ba .bad{border-left:3px solid var(--rust)}
+.ba .good{border-left:3px solid var(--moss)}
+.tag{display:block;font-family:ui-monospace,Menlo,monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* rules: tap to reveal */
+.rules{display:grid;gap:8px}
+.rules button{all:unset;cursor:pointer;display:block;padding:12px 14px;border:1px solid var(--rule);border-radius:4px;font-size:1rem}
+.rules button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.rules button .why{display:block;color:var(--moss);margin-top:4px;font-size:.92rem}
+.rules button .hint{float:right;color:var(--muted);font-family:ui-monospace,Menlo,monospace;font-size:.8rem}
+
+/* dial */
+.dial{display:flex;flex-wrap:wrap;gap:6px}
+.dial button{font:inherit;font-size:.9rem;padding:7px 14px;border:1px solid var(--rule);background:var(--bg);color:var(--fg);border-radius:999px;cursor:pointer}
+.dial button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.dial button:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+.out{padding:14px 16px;background:var(--soft);border-radius:4px;min-height:6.5em}
+.stats{font-family:ui-monospace,Menlo,monospace;font-size:.8rem;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+
+.copy{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.copy code{flex:1 1 240px;font-family:ui-monospace,Menlo,monospace;font-size:.85rem;padding:10px 12px;background:var(--soft);border-radius:4px}
+.copy button{font:inherit;font-size:.9rem;padding:8px 14px;border:0;background:var(--rust);color:#fff;border-radius:4px;cursor:pointer}
+
+ol.chain{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+hr{border:0;border-top:1px solid var(--rule);margin:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+
+<p class="back">Oct 4, 2026 — <a href="/learning/">Learning</a> • <a href="/">Home</a>.</p>
+
+<header>
+  <h1>Karpathy's aircraft manual trick for LLMs</h1>
+  <p class="small">Why Andrej Karpathy asks LLMs to write like an aircraft maintenance manual (ASD-STE100).</p>
+</header>
+
+<blockquote>
+  <p>"We'll be spending a lot more time trying to understand the outputs of language models. A few thoughts, tips &amp; tricks:</p>
+  <p>Writing. Something I've had success with: Ask your LLM to explain something in ASD-STE100, it's a controlled language specification originally developed for aerospace maintenance documentation. LLMs well-versed in this language and it comes with heavy constraints on clean writing style that I often find a lot more readable. Sometimes I've tried to soften it a bit e.g. ask for "80% of the way to ASD-STE100" because the spec is quite stringent. But even better: …"</p>
+  <footer>Andrej Karpathy · <a href="https://x.com/karpathy/status/2105819303471976479" target="_blank" rel="noopener">read the full post on X</a></footer>
+</blockquote>
+
+<section>
+  <h2>The problem</h2>
+  <p>LLMs often write like this:</p>
+  <div class="ba"><div class="bad"><span class="tag">Typical LLM</span>"Great question! It's worth noting that this can essentially be leveraged to facilitate…"</div></div>
+  <p>Too many words. Long sentences. Fancy verbs. Lots of "maybe".</p>
+  <p>You read it twice and still miss the point.</p>
+</section>
+
+<section>
+  <h2>Why does it happen?</h2>
+  <p>The model learned from essays, ads and polite emails. So it tries to sound smart.</p>
+  <p class="key"><b>Root cause:</b> it has no strict rules for clear writing. "Be concise" is too vague.</p>
+  <p>So where do we get strict rules?</p>
+</section>
+
+<section>
+  <h2>From airplanes</h2>
+  <p>Picture a mechanic at 3 a.m. English is their second language.</p>
+  <p>If they misread the manual, a plane can break.</p>
+  <p>So in the 1980s the aircraft industry wrote ASD-STE100, also called Simplified Technical English. It is a rulebook for English that nobody can misread.</p>
+  <div class="ba">
+    <div class="bad"><span class="tag">Before</span>"Prior to initiating the procedure, ensure that power has been disconnected."</div>
+    <div class="good"><span class="tag">STE</span>"Disconnect the power. Then start the procedure."</div>
+  </div>
+</section>
+
+<section>
+  <h2>The main rules</h2>
+  <p class="small">Tap a rule to see why it exists.</p>
+  <div class="rules" id="rules">
+    <button type="button" id="r1" aria-expanded="false">About 900 approved words<span class="hint">why?</span><span class="why" hidden>Fewer words means fewer ways to misread.</span></button>
+    <button type="button" id="r2" aria-expanded="false">One word, one meaning<span class="hint">why?</span><span class="why" hidden>"Close" only means shut, never near. No guessing.</span></button>
+    <button type="button" id="r3" aria-expanded="false">Short sentences (about 20 words max)<span class="hint">why?</span><span class="why" hidden>Your brain holds one idea at a time.</span></button>
+    <button type="button" id="r4" aria-expanded="false">One instruction per sentence<span class="hint">why?</span><span class="why" hidden>No juggling steps in your head.</span></button>
+    <button type="button" id="r5" aria-expanded="false">Active voice<span class="hint">why?</span><span class="why" hidden>"Turn the valve" tells you who acts. "The valve is turned" does not.</span></button>
+  </div>
+</section>
+
+<section>
+  <h2>Why it works on LLMs</h2>
+  <p><b>The model already knows the rulebook.</b> One name loads all the rules.</p>
+  <p><b>The rules are hard limits.</b> There is no room for filler.</p>
+  <p><b>They ban the exact bad habits.</b> Long sentences, fancy words and passive voice are all out.</p>
+</section>
+
+<section>
+  <h2>Why "80%"?</h2>
+  <p>The full spec was made for fixing machines. For ideas, it can sound like a robot.</p>
+  <p>80% keeps the short, plain style but allows normal words. Try it:</p>
+  <div class="dial" role="group" aria-label="Strictness">
+    <button type="button" id="d0" data-k="0" aria-pressed="false">Default</button>
+    <button type="button" id="d80" data-k="80" aria-pressed="true">80% STE</button>
+    <button type="button" id="d100" data-k="100" aria-pressed="false">100% STE</button>
+  </div>
+  <div class="out" id="out" aria-live="polite"></div>
+  <div class="stats" id="stats"></div>
+  <p class="small">Same topic each time: what a cache is.</p>
+</section>
+
+<section>
+  <h2>In short</h2>
+  <ol class="chain">
+    <li>LLMs write wordy text by default.</li>
+    <li>Vague advice does not fix it.</li>
+    <li>STE is a strict rulebook the model already knows.</li>
+    <li>80% keeps it clear without sounding robotic.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Try it</h2>
+  <div class="copy">
+    <code id="prompt">Explain this in ASD-STE100, about 80% strictness.</code>
+    <button type="button" id="copy">Copy</button>
+  </div>
+  <p class="small">In the post, Karpathy says the next steps are even better: diagrams, HTML pages, then explainer videos.</p>
+</section>
+
+<hr>
+<p class="small">Sources: <a href="https://x.com/karpathy/status/2105819303471976479" target="_blank" rel="noopener">Karpathy on X</a> · <a href="https://www.searchenginejournal.com/karpathy-llm-aircraft-manual-writing/591813/" target="_blank" rel="noopener">Search Engine Journal summary</a></p>
+
+</main>
+<script>
+document.querySelectorAll('#rules button').forEach(function(b){
+  b.addEventListener('click',function(){
+    var w=b.querySelector('.why'),open=w.hidden;
+    w.hidden=!open;b.setAttribute('aria-expanded',String(open));
+    b.querySelector('.hint').textContent=open?'':'why?';
+  });
+});
+var samples={
+  "0":"Great question! A cache is essentially a mechanism that can be leveraged to facilitate faster data retrieval by storing frequently accessed information in a location that is, generally speaking, quicker to access than the original source.",
+  "80":"A cache is a small, fast store of data. It keeps copies of data you use often. When you need that data again, the program reads the copy. This is faster than going back to the original.",
+  "100":"A cache is a small memory. It keeps copies of data. The computer uses these copies often. The cache is fast. The source is slow. The computer reads the cache first."
+};
+var out=document.getElementById('out'),stats=document.getElementById('stats');
+function show(k){
+  var t=samples[k];out.textContent=t;
+  var s=t.split(/[.!?]+/).map(function(x){return x.trim()}).filter(Boolean);
+  var longest=Math.max.apply(null,s.map(function(x){return x.split(/\s+/).length}));
+  stats.innerHTML='<span>'+t.split(/\s+/).length+' words</span><span>'+s.length+' sentences</span><span>longest: '+longest+' words</span>';
+  document.querySelectorAll('.dial button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.k===k?'true':'false')});
+}
+document.querySelectorAll('.dial button').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.k)})});
+show("80");
+var c=document.getElementById('copy');
+c.addEventListener('click',function(){
+  var txt=document.getElementById('prompt').textContent;
+  function sel(){var r=document.createRange();r.selectNodeContents(document.getElementById('prompt'));var s=getSelection();s.removeAllRanges();s.addRange(r);c.textContent='Selected'}
+  try{navigator.clipboard.writeText(txt).then(function(){c.textContent='Copied';setTimeout(function(){c.textContent='Copy'},1500)},sel)}catch(e){sel()}
+});
+</script>
+</body>
+</html>
