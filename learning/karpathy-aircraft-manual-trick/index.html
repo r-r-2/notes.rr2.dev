@@ -14,70 +14,93 @@
 <meta name="date" content="2026-10-04">
 <meta name="description" content="Why Karpathy asks LLMs to write in ASD-STE100, the plain-English rulebook from aircraft maintenance manuals.">
 <style>
-:root{
-  --bg:#ffffff; --fg:#111111; --muted:#5f5a55; --rule:#e4e0db; --soft:#f6f4f1;
-  --rust:#b5532a; --moss:#5b7a3a; --ink:#2b4c7e;
-}
-@media (prefers-color-scheme: dark){:root{
-  --bg:#141414; --fg:#ece9e4; --muted:#a39d96; --rule:#2e2b28; --soft:#1d1c1a;
-  --rust:#e08a62; --moss:#9cc072; --ink:#8fb1e6; color-scheme:dark}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:Georgia,"Times New Roman",serif;font-size:19px;line-height:1.65;padding:40px 18px 80px}
-main{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:34px}
-h1,h2{line-height:1.2;text-wrap:balance;margin:0;font-weight:normal}
-h1{font-size:2.1rem}
-h2{font-size:1.4rem}
-p{margin:0}
-section{display:flex;flex-direction:column;gap:14px}
-.small{font-size:.85rem;color:var(--muted)}
-a{color:var(--ink)}
-.back{font-size:.9rem;color:var(--muted)}
+  :root {
+    --bg: #fff;
+    --fg: #111;
+    --muted: #666;
+    --hair: #dcdcdc;
+    --panel: #f7f6f4;
+    --mono: 'Courier New', ui-monospace, monospace;
+    --rust: #a8452c;        /* problems */
+    --moss: #2f6a4a;        /* the fix */
+    --ink-blue: #2c4f7c;    /* structure, numbers */
+    --wash-rust: #fbf1ed;
+    --wash-moss: #edf4f0;
+    --wash-blue: #eef2f8;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); color: var(--fg); }
+  body { max-width: 44rem; margin: 3.5rem auto 6rem; padding: 0 1.25rem;
+         font: 1rem/1.65 Georgia, 'Times New Roman', serif; }
+  main { display: block; }
+  section, header { display: block; }
 
-blockquote{margin:0;padding:16px 18px;border-left:3px solid var(--ink);background:var(--soft);display:flex;flex-direction:column;gap:10px}
-blockquote footer{font-size:.85rem;color:var(--muted)}
+  h1 { font-size: 1.9rem; font-weight: normal; margin: 0 0 0.3rem; letter-spacing: -0.01em; }
+  h2 { font-size: 1.2rem; font-weight: normal; margin: 2.75rem 0 0.75rem;
+       padding-bottom: 0.3rem; border-bottom: 2px solid var(--ink-blue); }
+  h2::before { content: "\259A"; color: var(--ink-blue); font-size: 0.7em;
+               margin-right: 0.45rem; vertical-align: 0.1em; }
+  hr { border: 0; border-top: 1px solid var(--fg); margin: 2.5rem 0 1rem; }
+  a { color: var(--ink-blue); }
+  p { margin: 0.8rem 0; }
+  .meta, .back { font-style: italic; color: var(--muted); }
+  .small { font-size: 0.9rem; color: var(--muted); }
+  ol { padding-left: 1.25rem; }
+  li { margin: 0.35rem 0; }
+  code { font-family: var(--mono); font-size: 0.93em; }
 
-.key{border-left:3px solid var(--rust);padding:4px 0 4px 16px}
-.key b{color:var(--rust)}
+  blockquote { margin: 1.25rem 0; background: var(--wash-blue); border: 1px solid var(--hair);
+               border-left: 5px solid var(--ink-blue); border-radius: 3px; padding: 0.4rem 1.15rem; }
+  blockquote footer { font-size: 0.85rem; color: var(--muted); margin: 0.6rem 0; font-style: italic; }
 
-/* before / after */
-.ba{display:grid;gap:10px}
-.ba div{padding:12px 14px;background:var(--soft);border-radius:4px}
-.ba .bad{border-left:3px solid var(--rust)}
-.ba .good{border-left:3px solid var(--moss)}
-.tag{display:block;font-family:ui-monospace,Menlo,monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .key { border: 1px solid var(--rust); border-left-width: 5px; border-radius: 3px;
+         background: var(--wash-rust); padding: 0.8rem 1.15rem; margin: 1.25rem 0; }
+  .key b { color: var(--rust); font-weight: normal; font-family: var(--mono);
+           font-size: 0.75rem; letter-spacing: 0.09em; text-transform: uppercase; display: block; }
 
-/* rules: tap to reveal */
-.rules{display:grid;gap:8px}
-.rules button{all:unset;cursor:pointer;display:block;padding:12px 14px;border:1px solid var(--rule);border-radius:4px;font-size:1rem}
-.rules button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-.rules button .why{display:block;color:var(--moss);margin-top:4px;font-size:.92rem}
-.rules button .hint{float:right;color:var(--muted);font-family:ui-monospace,Menlo,monospace;font-size:.8rem}
+  .ba { display: grid; gap: 0.6rem; margin: 1rem 0; }
+  .ba div { border: 1px solid var(--hair); border-radius: 3px; padding: 0.7rem 0.9rem; }
+  .ba .bad { border-left: 3px solid var(--rust); background: var(--wash-rust); }
+  .ba .good { border-left: 3px solid var(--moss); background: var(--wash-moss); }
+  .tag { display: block; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em;
+         text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .ba .bad .tag { color: var(--rust); } .ba .good .tag { color: var(--moss); }
 
-/* dial */
-.dial{display:flex;flex-wrap:wrap;gap:6px}
-.dial button{font:inherit;font-size:.9rem;padding:7px 14px;border:1px solid var(--rule);background:var(--bg);color:var(--fg);border-radius:999px;cursor:pointer}
-.dial button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
-.dial button:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
-.out{padding:14px 16px;background:var(--soft);border-radius:4px;min-height:6.5em}
-.stats{font-family:ui-monospace,Menlo,monospace;font-size:.8rem;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+  .rules { display: grid; gap: 0.5rem; margin: 1rem 0; }
+  .rules button { font: inherit; text-align: left; cursor: pointer; color: var(--fg);
+                  background: var(--wash-blue); border: 1px solid var(--hair);
+                  border-left: 3px solid var(--ink-blue); border-radius: 3px; padding: 0.7rem 0.9rem; }
+  .rules button[aria-expanded="true"] { background: var(--wash-moss); border-left-color: var(--moss); }
+  .rules button:focus-visible { outline: 2px solid var(--ink-blue); outline-offset: 2px; }
+  .rules .why { display: block; color: var(--moss); font-size: 0.9rem; margin-top: 0.25rem; }
+  .rules .hint { float: right; font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
 
-.copy{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.copy code{flex:1 1 240px;font-family:ui-monospace,Menlo,monospace;font-size:.85rem;padding:10px 12px;background:var(--soft);border-radius:4px}
-.copy button{font:inherit;font-size:.9rem;padding:8px 14px;border:0;background:var(--rust);color:#fff;border-radius:4px;cursor:pointer}
+  .dial { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--ink-blue);
+          border-radius: 2px; overflow: hidden; margin: 0.3rem 0 0.8rem; }
+  .dial button { font-family: var(--mono); font-size: 0.8rem; cursor: pointer; border: 0;
+                 background: var(--bg); color: var(--ink-blue); padding: 0.45rem 0.9rem; }
+  .dial button[aria-pressed="true"] { background: var(--ink-blue); color: #fff; }
+  .out { background: var(--panel); border: 1px solid var(--hair); border-radius: 3px;
+         padding: 1rem 1.15rem; min-height: 6.5em; }
+  .stats { font-family: var(--mono); font-size: 0.76rem; color: var(--muted);
+           display: flex; flex-wrap: wrap; gap: 0.9rem; margin-top: 0.5rem; font-variant-numeric: tabular-nums; }
 
-ol.chain{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
-hr{border:0;border-top:1px solid var(--rule);margin:0}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  .copy { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 1rem 0; }
+  .copy code { flex: 1 1 15rem; background: var(--panel); border: 1px solid var(--hair);
+               border-radius: 3px; padding: 0.6rem 0.8rem; font-size: 0.85rem; }
+  .copy button { font-family: var(--mono); font-size: 0.9rem; cursor: pointer; background: var(--moss);
+                 color: #fff; border: 1px solid var(--moss); border-radius: 2px; padding: 0.45rem 0.9rem; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
 <body>
 <main>
 
-<p class="back">Oct 4, 2026 — <a href="/learning/">Learning</a> • <a href="/">Home</a>.</p>
 
 <header>
   <h1>Karpathy's aircraft manual trick for LLMs</h1>
   <p class="small">Why Andrej Karpathy asks LLMs to write like an aircraft maintenance manual (ASD-STE100).</p>
+  <p class="meta">Oct 4, 2026 — <a href="/learning/">Learning</a> • <a href="/">Home</a>.</p>
 </header>
 
 <blockquote>
@@ -198,45 +221,5 @@ c.addEventListener('click',function(){
   try{navigator.clipboard.writeText(txt).then(function(){c.textContent='Copied';setTimeout(function(){c.textContent='Copy'},1500)},sel)}catch(e){sel()}
 });
 </script>
-
-<!-- notes:more:start -->
-<!-- Generated by .github/scripts/update-listings.py; edits here are overwritten. -->
-<style>
-  .nr-more { margin: 3.5rem 0 0; padding-top: 1rem; border-top: 1px solid #111;
-             font: 1rem/1.6 Georgia, 'Times New Roman', serif; color: #111; }
-  .nr-more, .nr-more * { box-sizing: border-box; }
-  .nr-more .nr-head { display: flex; justify-content: space-between; align-items: baseline;
-                      gap: 1rem; margin: 0 0 0.6rem; }
-  .nr-more .nr-label, .nr-more .nr-all, .nr-more .nr-meta {
-    font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-  .nr-more .nr-label { font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
-                       letter-spacing: 0.14em; margin: 0; }
-  .nr-more .nr-all { flex: none; font-size: 0.78rem; color: #7a6450; text-decoration: none; }
-  .nr-more .nr-all:hover, .nr-more .nr-all:focus-visible { text-decoration: underline; }
-  .nr-more ol { list-style: none; margin: 0; padding: 0; }
-  .nr-more li { margin: 0; padding: 0; border-top: 1px solid #ddd6ca; }
-  .nr-more li:first-child { border-top: 0; }
-  .nr-more li a { display: block; padding: 0.6rem 0; color: #111; text-decoration: none; }
-  .nr-more li a:hover .nr-t, .nr-more li a:focus-visible .nr-t { text-decoration: underline; }
-  .nr-more .nr-meta { display: block; font-size: 0.72rem; letter-spacing: 0.02em; color: #7a6450;
-                      font-variant-numeric: tabular-nums lining-nums; }
-  .nr-more .nr-new { display: none; margin-right: 0.4rem; color: #b06a00; font-weight: 600;
-                     font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; }
-  .nr-more .is-new .nr-new { display: inline; }
-  .nr-more .nr-sec::before { content: "\00B7"; margin: 0 0.4rem; }
-  .nr-more .nr-t { font-size: 1.02rem; }
-</style>
-<aside class="nr-more" aria-label="Recently on notes.rr2.dev">
-  <div class="nr-head"><p class="nr-label">Recently on notes.rr2.dev</p><a class="nr-all" href="/">All notes →</a></div>
-  <ol>
-    <li><a href="/worklog/notes-latest-ticker-and-recent-notes/" data-fresh="2026-09-29"><span class="nr-meta"><span class="nr-new">New</span>29 Sep 2026<span class="nr-sec">worklog</span></span><span class="nr-t">Making notes.rr2.dev easier to browse</span></a></li>
-    <li><a href="/worklog/phone-showroom-day-2/" data-fresh="2026-09-29"><span class="nr-meta"><span class="nr-new">New</span>29 Sep 2026<span class="nr-sec">worklog</span></span><span class="nr-t">My Phone Showroom, day 2: tracing phones from photos</span></a></li>
-    <li><a href="/worklog/phone-showroom-day-1/" data-fresh="2026-09-28"><span class="nr-meta"><span class="nr-new">New</span>28 Sep 2026<span class="nr-sec">worklog</span></span><span class="nr-t">My Phone Showroom, day 1: from sketches to a 3D table</span></a></li>
-    <li><a href="/learning/pi-and-agent-harnesses/" data-fresh="2026-09-26"><span class="nr-meta"><span class="nr-new">New</span>26 Sep 2026<span class="nr-sec">learning</span></span><span class="nr-t">Pi, agent harnesses, and how to benchmark them</span></a></li>
-  </ol>
-</aside>
-<script>(function(){var d=new Date();d.setHours(0,0,0,0);var els=document.querySelectorAll('[data-fresh]');for(var i=0;i<els.length;i++){var t=new Date(els[i].getAttribute('data-fresh')+'T00:00:00');var a=Math.round((d-t)/864e5);if(a>=0&&a<=3)els[i].classList.add('is-new');}})();</script>
-<!-- notes:more:end -->
-
 </body>
 </html>
