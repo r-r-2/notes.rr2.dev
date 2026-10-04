@@ -91,17 +91,34 @@
   .copy button { font-family: var(--mono); font-size: 0.9rem; cursor: pointer; background: var(--moss);
                  color: #fff; border: 1px solid var(--moss); border-radius: 2px; padding: 0.45rem 0.9rem; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  /* ---- plain / STE toggle ---- */
+  .mode { margin: 1.25rem 0 0.5rem; }
+  .mode-label { display: block; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.09em;
+                text-transform: uppercase; color: var(--muted); }
+  .mode .dial { margin-bottom: 0.2rem; }
+  .mode .small { margin: 0.3rem 0 0; }
+  body.ste .v-p { display: none !important; }
+  body:not(.ste) .v-s { display: none !important; }
+  h2 span { display: inline; }
 </style>
 </head>
 <body>
 <main>
-
 
 <header>
   <h1>Karpathy's aircraft manual trick for LLMs</h1>
   <p class="small">Why Andrej Karpathy asks LLMs to write like an aircraft maintenance manual (ASD-STE100).</p>
   <p class="meta">Oct 4, 2026 — <a href="/learning/">Learning</a> • <a href="/">Home</a>.</p>
 </header>
+
+<div class="mode">
+  <span class="mode-label">Read this page in</span>
+  <div class="dial" role="group" aria-label="Writing style">
+    <button type="button" id="m-plain" data-m="plain" aria-pressed="true">Plain English</button>
+    <button type="button" id="m-ste" data-m="ste" aria-pressed="false">ASD-STE100</button>
+  </div>
+  <p class="small v-s">This version uses the STE rules: short sentences, active voice, simple words, one meaning for each word.</p>
+</div>
 
 <blockquote>
   <p>"We'll be spending a lot more time trying to understand the outputs of language models. A few thoughts, tips &amp; tricks:</p>
@@ -110,25 +127,34 @@
 </blockquote>
 
 <section>
-  <h2>The problem</h2>
-  <p>LLMs often write like this:</p>
+  <h2><span class="v-p">The problem</span><span class="v-s">The problem</span></h2>
+  <p class="v-p">LLMs often write like this:</p>
+  <p class="v-s">Many LLMs write text like this:</p>
   <div class="ba"><div class="bad"><span class="tag">Typical LLM</span>"Great question! It's worth noting that this can essentially be leveraged to facilitate…"</div></div>
-  <p>Too many words. Long sentences. Fancy verbs. Lots of "maybe".</p>
-  <p>You read it twice and still miss the point.</p>
+  <p class="v-p">Too many words. Long sentences. Fancy verbs. Lots of "maybe".</p>
+  <p class="v-s">This text has too many words. The sentences are long. The verbs are complex. The text does not make clear statements.</p>
+  <p class="v-p">You read it twice and still miss the point.</p>
+  <p class="v-s">You must read the text two times. Sometimes you still do not understand it.</p>
 </section>
 
 <section>
-  <h2>Why does it happen?</h2>
-  <p>The model learned from essays, ads and polite emails. So it tries to sound smart.</p>
-  <p class="key"><b>Root cause:</b> it has no strict rules for clear writing. "Be concise" is too vague.</p>
-  <p>So where do we get strict rules?</p>
+  <h2><span class="v-p">Why does it happen?</span><span class="v-s">The cause of the problem</span></h2>
+  <p class="v-p">The model learned from essays, ads and polite emails. So it tries to sound smart.</p>
+  <p class="v-s">The model learned from many types of text, for example essays, advertisements and polite emails. Thus, the model tries to sound intelligent.</p>
+  <p class="v-p key"><b>Root cause</b>It has no strict rules for clear writing. "Be concise" is too vague.</p>
+  <p class="v-s key"><b>Root cause</b>The model does not have strict rules for clear writing. The instruction "be concise" is not specific.</p>
+  <p class="v-p">So where do we get strict rules?</p>
+  <p class="v-s">Where can we find strict rules?</p>
 </section>
 
 <section>
-  <h2>From airplanes</h2>
-  <p>Picture a mechanic at 3 a.m. English is their second language.</p>
-  <p>If they misread the manual, a plane can break.</p>
-  <p>So in the 1980s the aircraft industry wrote ASD-STE100, also called Simplified Technical English. It is a rulebook for English that nobody can misread.</p>
+  <h2><span class="v-p">From airplanes</span><span class="v-s">The rules come from aircraft maintenance</span></h2>
+  <p class="v-p">Picture a mechanic at 3 a.m. English is their second language.</p>
+  <p class="v-s">A mechanic repairs an aircraft at night. English is not the first language of the mechanic.</p>
+  <p class="v-p">If they misread the manual, a plane can break.</p>
+  <p class="v-s">If the mechanic does not understand the manual, damage to the aircraft can occur.</p>
+  <p class="v-p">So in the 1980s the aircraft industry wrote ASD-STE100, also called Simplified Technical English. It is a rulebook for English that nobody can misread.</p>
+  <p class="v-s">Thus, the aircraft industry wrote ASD-STE100 in the 1980s. The other name is Simplified Technical English (STE). STE is a set of rules for English. With these rules, each reader understands a text in only one way.</p>
   <div class="ba">
     <div class="bad"><span class="tag">Before</span>"Prior to initiating the procedure, ensure that power has been disconnected."</div>
     <div class="good"><span class="tag">STE</span>"Disconnect the power. Then start the procedure."</div>
@@ -136,8 +162,9 @@
 </section>
 
 <section>
-  <h2>The main rules</h2>
-  <p class="small">Tap a rule to see why it exists.</p>
+  <h2><span class="v-p">The main rules</span><span class="v-s">The main rules</span></h2>
+  <p class="v-p small">Tap a rule to see why it exists.</p>
+  <p class="v-s small">Push a rule to see the reason for it.</p>
   <div class="rules" id="rules">
     <button type="button" id="r1" aria-expanded="false">About 900 approved words<span class="hint">why?</span><span class="why" hidden>Fewer words means fewer ways to misread.</span></button>
     <button type="button" id="r2" aria-expanded="false">One word, one meaning<span class="hint">why?</span><span class="why" hidden>"Close" only means shut, never near. No guessing.</span></button>
@@ -148,16 +175,21 @@
 </section>
 
 <section>
-  <h2>Why it works on LLMs</h2>
-  <p><b>The model already knows the rulebook.</b> One name loads all the rules.</p>
-  <p><b>The rules are hard limits.</b> There is no room for filler.</p>
-  <p><b>They ban the exact bad habits.</b> Long sentences, fancy words and passive voice are all out.</p>
+  <h2><span class="v-p">Why it works on LLMs</span><span class="v-s">Why the rules help an LLM</span></h2>
+  <p class="v-p"><b>The model already knows the rulebook.</b> One name loads all the rules.</p>
+  <p class="v-s"><b>The model knows the STE rules.</b> One name gives all the rules to the model.</p>
+  <p class="v-p"><b>The rules are hard limits.</b> There is no room for filler.</p>
+  <p class="v-s"><b>The rules have strict limits.</b> The model cannot add words that have no function.</p>
+  <p class="v-p"><b>They ban the exact bad habits.</b> Long sentences, fancy words and passive voice are all out.</p>
+  <p class="v-s"><b>The rules stop the bad habits.</b> Long sentences, complex words and the passive voice are not permitted.</p>
 </section>
 
 <section>
-  <h2>Why "80%"?</h2>
-  <p>The full spec was made for fixing machines. For ideas, it can sound like a robot.</p>
-  <p>80% keeps the short, plain style but allows normal words. Try it:</p>
+  <h2><span class="v-p">Why "80%"?</span><span class="v-s">Why use 80%?</span></h2>
+  <p class="v-p">The full spec was made for fixing machines. For ideas, it can sound like a robot.</p>
+  <p class="v-s">The full rules are for the repair of machines. When you explain ideas, the text can sound like a robot wrote it.</p>
+  <p class="v-p">80% keeps the short, plain style but allows normal words. Try it:</p>
+  <p class="v-s">At 80%, the model keeps short sentences and simple words. But it can use more words when necessary. Use the dial:</p>
   <div class="dial" role="group" aria-label="Strictness">
     <button type="button" id="d0" data-k="0" aria-pressed="false">Default</button>
     <button type="button" id="d80" data-k="80" aria-pressed="true">80% STE</button>
@@ -165,30 +197,38 @@
   </div>
   <div class="out" id="out" aria-live="polite"></div>
   <div class="stats" id="stats"></div>
-  <p class="small">Same topic each time: what a cache is.</p>
+  <p class="v-p small">Same topic each time: what a cache is.</p>
+  <p class="v-s small">Each text explains the same topic: a cache.</p>
 </section>
 
 <section>
-  <h2>In short</h2>
-  <ol class="chain">
+  <h2><span class="v-p">In short</span><span class="v-s">Summary</span></h2>
+  <ol class="chain v-p">
     <li>LLMs write wordy text by default.</li>
     <li>Vague advice does not fix it.</li>
     <li>STE is a strict rulebook the model already knows.</li>
     <li>80% keeps it clear without sounding robotic.</li>
   </ol>
+  <ol class="chain v-s">
+    <li>LLMs usually write too many words.</li>
+    <li>General instructions do not correct this.</li>
+    <li>STE is a set of strict rules. The model knows these rules.</li>
+    <li>Use 80% to get clear text that does not sound like a robot.</li>
+  </ol>
 </section>
 
 <section>
-  <h2>Try it</h2>
+  <h2><span class="v-p">Try it</span><span class="v-s">Do this test</span></h2>
   <div class="copy">
     <code id="prompt">Explain this in ASD-STE100, about 80% strictness.</code>
     <button type="button" id="copy">Copy</button>
   </div>
-  <p class="small">In the post, Karpathy says the next steps are even better: diagrams, HTML pages, then explainer videos.</p>
+  <p class="v-p small">In the post, Karpathy says the next steps are even better: diagrams, HTML pages, then explainer videos.</p>
+  <p class="v-s small">Karpathy gives more methods in the post. He says that these methods are better: diagrams, HTML pages and explainer videos.</p>
 </section>
 
 <hr>
-<p class="small">Sources: <a href="https://x.com/karpathy/status/2105819303471976479" target="_blank" rel="noopener">Karpathy on X</a> · <a href="https://www.searchenginejournal.com/karpathy-llm-aircraft-manual-writing/591813/" target="_blank" rel="noopener">Search Engine Journal summary</a></p>
+<p class="small">Source: <a href="https://x.com/karpathy/status/2105819303471976479" target="_blank" rel="noopener">Karpathy on X</a></p>
 
 </main>
 <script>
@@ -210,9 +250,9 @@ function show(k){
   var s=t.split(/[.!?]+/).map(function(x){return x.trim()}).filter(Boolean);
   var longest=Math.max.apply(null,s.map(function(x){return x.split(/\s+/).length}));
   stats.innerHTML='<span>'+t.split(/\s+/).length+' words</span><span>'+s.length+' sentences</span><span>longest: '+longest+' words</span>';
-  document.querySelectorAll('.dial button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.k===k?'true':'false')});
+  document.querySelectorAll('.dial button[data-k]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.k===k?'true':'false')});
 }
-document.querySelectorAll('.dial button').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.k)})});
+document.querySelectorAll('.dial button[data-k]').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.k)})});
 show("80");
 var c=document.getElementById('copy');
 c.addEventListener('click',function(){
@@ -220,46 +260,16 @@ c.addEventListener('click',function(){
   function sel(){var r=document.createRange();r.selectNodeContents(document.getElementById('prompt'));var s=getSelection();s.removeAllRanges();s.addRange(r);c.textContent='Selected'}
   try{navigator.clipboard.writeText(txt).then(function(){c.textContent='Copied';setTimeout(function(){c.textContent='Copy'},1500)},sel)}catch(e){sel()}
 });
+var modeBtns=document.querySelectorAll('.mode button');
+function setMode(m){
+  document.body.classList.toggle('ste',m==='ste');
+  modeBtns.forEach(function(b){b.setAttribute('aria-pressed',b.dataset.m===m?'true':'false')});
+  try{localStorage.setItem('ste-mode',m)}catch(e){}
+}
+modeBtns.forEach(function(b){b.addEventListener('click',function(){setMode(b.dataset.m)})});
+var saved='plain';try{saved=localStorage.getItem('ste-mode')||'plain'}catch(e){}
+if(location.hash==='#ste')saved='ste';
+setMode(saved);
 </script>
-
-<!-- notes:more:start -->
-<!-- Generated by .github/scripts/update-listings.py; edits here are overwritten. -->
-<style>
-  .nr-more { margin: 3.5rem 0 0; padding-top: 1rem; border-top: 1px solid #111;
-             font: 1rem/1.6 Georgia, 'Times New Roman', serif; color: #111; }
-  .nr-more, .nr-more * { box-sizing: border-box; }
-  .nr-more .nr-head { display: flex; justify-content: space-between; align-items: baseline;
-                      gap: 1rem; margin: 0 0 0.6rem; }
-  .nr-more .nr-label, .nr-more .nr-all, .nr-more .nr-meta {
-    font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-  .nr-more .nr-label { font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
-                       letter-spacing: 0.14em; margin: 0; }
-  .nr-more .nr-all { flex: none; font-size: 0.78rem; color: #7a6450; text-decoration: none; }
-  .nr-more .nr-all:hover, .nr-more .nr-all:focus-visible { text-decoration: underline; }
-  .nr-more ol { list-style: none; margin: 0; padding: 0; }
-  .nr-more li { margin: 0; padding: 0; border-top: 1px solid #ddd6ca; }
-  .nr-more li:first-child { border-top: 0; }
-  .nr-more li a { display: block; padding: 0.6rem 0; color: #111; text-decoration: none; }
-  .nr-more li a:hover .nr-t, .nr-more li a:focus-visible .nr-t { text-decoration: underline; }
-  .nr-more .nr-meta { display: block; font-size: 0.72rem; letter-spacing: 0.02em; color: #7a6450;
-                      font-variant-numeric: tabular-nums lining-nums; }
-  .nr-more .nr-new { display: none; margin-right: 0.4rem; color: #b06a00; font-weight: 600;
-                     font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; }
-  .nr-more .is-new .nr-new { display: inline; }
-  .nr-more .nr-sec::before { content: "\00B7"; margin: 0 0.4rem; }
-  .nr-more .nr-t { font-size: 1.02rem; }
-</style>
-<aside class="nr-more" aria-label="Recently on notes.rr2.dev">
-  <div class="nr-head"><p class="nr-label">Recently on notes.rr2.dev</p><a class="nr-all" href="/">All notes →</a></div>
-  <ol>
-    <li><a href="/worklog/notes-latest-ticker-and-recent-notes/" data-fresh="2026-09-29"><span class="nr-meta"><span class="nr-new">New</span>29 Sep 2026<span class="nr-sec">worklog</span></span><span class="nr-t">Making notes.rr2.dev easier to browse</span></a></li>
-    <li><a href="/worklog/phone-showroom-day-2/" data-fresh="2026-09-29"><span class="nr-meta"><span class="nr-new">New</span>29 Sep 2026<span class="nr-sec">worklog</span></span><span class="nr-t">My Phone Showroom, day 2: tracing phones from photos</span></a></li>
-    <li><a href="/worklog/phone-showroom-day-1/" data-fresh="2026-09-28"><span class="nr-meta"><span class="nr-new">New</span>28 Sep 2026<span class="nr-sec">worklog</span></span><span class="nr-t">My Phone Showroom, day 1: from sketches to a 3D table</span></a></li>
-    <li><a href="/learning/pi-and-agent-harnesses/" data-fresh="2026-09-26"><span class="nr-meta"><span class="nr-new">New</span>26 Sep 2026<span class="nr-sec">learning</span></span><span class="nr-t">Pi, agent harnesses, and how to benchmark them</span></a></li>
-  </ol>
-</aside>
-<script>(function(){var d=new Date();d.setHours(0,0,0,0);var els=document.querySelectorAll('[data-fresh]');for(var i=0;i<els.length;i++){var t=new Date(els[i].getAttribute('data-fresh')+'T00:00:00');var a=Math.round((d-t)/864e5);if(a>=0&&a<=3)els[i].classList.add('is-new');}})();</script>
-<!-- notes:more:end -->
-
 </body>
 </html>
