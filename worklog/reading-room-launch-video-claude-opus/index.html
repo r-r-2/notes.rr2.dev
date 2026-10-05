@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A launch video for the Reading Room, made in code with Claude Opus 5.5 — notes.rr2.dev</title>
+<meta name="description" content="How the 29-second Reading Room launch video was made without a video editor: Claude Opus 5.5 scripted it, filmed the live site frame by frame with Playwright, and cut it to the beat with ffmpeg.">
+<meta name="date" content="2026-10-05">
+<style>
+  html { background: #fff; color: #111; }
+  body { max-width: 38rem; margin: 4rem auto; padding: 0 1.25rem;
+         font: 1rem/1.6 Georgia, 'Times New Roman', serif; }
+  h1 { font-size: 1.5rem; font-weight: normal; margin: 0 0 0.25rem; }
+  h2 { font-size: 1.1rem; font-weight: normal; margin: 1.5rem 0 0.5rem; }
+  hr { border: 0; border-top: 1px solid #111; margin: 1.5rem 0; }
+  a { color: #111; }
+  .meta { font-style: italic; }
+  ul, ol { padding-left: 1.25rem; }
+  li { margin-bottom: 0.4rem; }
+  code { font-family: 'Courier New', monospace; font-size: 0.95em; }
+  .term { background: #161616; color: #e8e6e1; border-radius: 6px; padding: 1rem 1.1rem;
+          font: 0.85rem/1.55 'SF Mono', Menlo, Consolas, 'Courier New', monospace; }
+  .term p { margin: 0 0 0.9rem; padding-left: 1.4rem; text-indent: -1.4rem; overflow-wrap: anywhere; }
+  .term p:last-child { margin-bottom: 0; }
+  .term p::before { content: '> '; color: #8fbf7f; }
+  video { display: block; width: 100%; height: auto; border: 1px solid #111; background: #111; }
+</style>
+</head>
+<body>
+
+<h1>A launch video for the Reading Room, made in code with Claude Opus 5.5</h1>
+<p class="meta">Oct 5, 2026 — <a href="/worklog/">Worklog</a> • <a href="/">Home</a>.</p>
+
+<hr>
+
+<p><a href="https://readingroom.rr2.dev">The Reading Room</a> is a first-person 3D room that holds the books I've read. I wanted a short video to post on X. Instead of opening a video editor, I asked Claude Opus 5.5 in Claude Code to make one. It wrote the script, filmed the live site, and cut it to music, all from the terminal.</p>
+
+<video controls playsinline preload="metadata" poster="poster.jpg">
+  <source src="reading-room-launch.mp4" type="video/mp4">
+</video>
+
+<h2>Links</h2>
+<ul>
+  <li>Post on X: <a href="https://x.com/rahul_r007/status/2107142518051869137">x.com/rahul_r007/status/2107142518051869137</a></li>
+  <li>Room: <a href="https://readingroom.rr2.dev">readingroom.rr2.dev</a></li>
+  <li>Repo: <a href="https://github.com/r-r-2/thereadingroom">github.com/r-r-2/thereadingroom</a></li>
+  <li>Music: <a href="https://pixabay.com/music/modern-jazz-jazz-lofi-587555/">"Jazz Lofi" by Aurec</a>, from Pixabay</li>
+</ul>
+
+<hr>
+
+<p><strong>Result:</strong> 28.9 seconds, 1080p at 60 fps, 1,734 frames. Every frame is the real site rendered in Chrome. There is no screen recording and no editing software.</p>
+
+<h2>Who did what</h2>
+<ul>
+  <li><strong>Me:</strong> the hook line, the feedback after each draft, the Goodreads screenshot, and the choice of track.</li>
+  <li><strong>Claude:</strong> the shot list and captions, the capture rig, the camera moves, the title cards, the tempo analysis, and the final export.</li>
+</ul>
+
+<h2>How the video is filmed</h2>
+<ol>
+  <li><strong>Playwright drives real Chrome.</strong> For each frame a script sets the camera in the live room and takes a screenshot. Rendering runs on the GPU, so the footage looks like the site itself.</li>
+  <li><strong>Captions are part of the page.</strong> The title card, labels and end card are HTML laid over the canvas, so they land in the screenshots.</li>
+  <li><strong>ffmpeg assembles it.</strong> Screenshots are piped straight into ffmpeg, which encodes the video and adds the music.</li>
+</ol>
+
+<h2>Cutting to the beat without ears</h2>
+<p>Claude can't listen to audio. It decoded the track to raw samples and measured it instead: 75 BPM, with the beat dropping about 12.8 seconds in. It then lined that drop up with the flash cut at 2.5 seconds and moved every later cut onto the 0.8-second beat grid. The title card, the book pull, the guest form and the end card each start a bar.</p>
+
+<h2>What took a few rounds</h2>
+<ul>
+  <li><strong>The first cut was a walkthrough with subtitles.</strong> I said it didn't look like a launch video. The rebuild opens on my Goodreads profile, cuts hard to the floating books, and adds a title card, large labels and an end card.</li>
+  <li><strong>The hook was hard to read.</strong> The Goodreads page now dims slowly to about 80% dark under the opening line.</li>
+</ul>
+
+<h2>How long it took</h2>
+<p>About an hour of building, in two sittings on the same evening.</p>
+<ul>
+  <li><strong>7:36 pm:</strong> I said "let's build it".</li>
+  <li><strong>8:03 pm:</strong> first full cut, 27 minutes later.</li>
+  <li><strong>8:28 pm:</strong> rebuilt as a launch video, with the Goodreads opener and the window ending.</li>
+  <li><strong>10:49 pm:</strong> I came back with the track.</li>
+  <li><strong>10:57 pm:</strong> final video with music, 8 minutes later.</li>
+</ul>
+<p>The planning chat before that (plan, hook line, script) fit inside the hour before 7:36.</p>
+
+<h2>My prompts</h2>
+<p>These are the prompts that shaped the video, as I typed them, with only the typos fixed. Nothing here is a careful prompt. It was a conversation.</p>
+<div class="term">
+  <p>can you help create a launch video for this on x and including screenshots. it should have hooks and go with ai community on x. Also highlight visitors can recommend books for me. This is not saas but just a personal project so keep it in mind. i am not looking for customers but just viewers.. tell me the plan. will it be on code?</p>
+  <p>it should also have a catchy background track for hook right</p>
+  <p>you don't have to use same music of room.. go with what goes best for video and no copyright ones</p>
+  <p>hook line can be "I didn't like how my Goodreads profile look, so I built a reading room to show books i have read or reading" . suggest fixes in this</p>
+  <p>yes let's go with your pick.. and now show me script</p>
+  <p>floating is cool.. how can i highlight it better</p>
+  <p>okay let's build it</p>
+  <p>why doesn't it look like a launch video.. in the beginning maybe we show screenshot of my goodreads profile to show difference</p>
+  <p>can we also include the window side for scenery somewhere in the end..</p>
+  <p>here is the screenshot in my desktop.. latest file</p>
+  <p>this looks great.. use this music https://pixabay.com/music/modern-jazz-jazz-lofi-587555/,</p>
+  <p>it's added to desktop.. also the hook in first frame is not that visible .. can we slowly dim the goodreads profile even further</p>
+</div>
+<p>I didn't study anyone else's prompts for this one. I wanted to test what the quality is by default. For future projects I will study how others do it and learn the best practices.</p>
+
+</body>
+</html>
