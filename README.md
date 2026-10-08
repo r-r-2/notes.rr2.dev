@@ -10,6 +10,8 @@ by Arnav Gupta.
 - `/index.html` — apex page. Spartan. Keep it that way.
 - `/research/<report-name>/index.html` — reports.
 - `/learning/<guide-name>/index.html` — guides.
+- `/worklog/<entry-name>/index.html` — worklog entries.
+- `/unlisted/<slug>/index.html` — unlisted artifacts (talk decks, drafts). Reachable by direct link only: no listing page, not on the homepage, skipped by the generator. Unlisted, not private — the repo is public.
 - `/llms.txt` — instructions for LLMs uploading to this repo. Read it before adding anything.
 
 ## Rules
@@ -32,6 +34,6 @@ Don't hand-edit inside those markers. To regenerate locally: `python3 .github/sc
 
 [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): summary`, lowercase, imperative, no trailing period.
 
-- Scope is the section or area: `research`, `learning`, `worklog`, `home`, `listings`, `ci`, `llms`.
+- Scope is the section or area: `research`, `learning`, `worklog`, `unlisted`, `home`, `listings`, `ci`, `llms`.
 - New page → `feat(<section>): add <slug>`. Change to an existing page → `fix(<section>): …` for corrections, `docs(<section>): …` for rewording.
 - Site features → `feat(home): …`; workflows → `ci: …`; generated output and housekeeping → `chore(…): …`.

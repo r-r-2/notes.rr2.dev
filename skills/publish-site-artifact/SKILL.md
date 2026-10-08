@@ -16,6 +16,7 @@ Static-site collection of LLM-agent notes, maintained by Rahul. Repo `r-r-2/note
    - report → `research/<slug>/index.html` (serves at `/research/<slug>/`)
    - guide → `learning/<slug>/index.html` (serves at `/learning/<slug>/`)
    - worklog entry → `worklog/<slug>/index.html` (serves at `/worklog/<slug>/`)
+   - unlisted artifact (talk deck, draft, anything meant to be reached by direct link only) → `unlisted/<slug>/index.html` (serves at `/unlisted/<slug>/`). See "Unlisted artifacts" below; the date, title and "recent posts" notes that follow don't apply to it.
    - Add `<meta name="date" content="YYYY-MM-DD">` to the `<head>` of every entry so its date appears in the section listing and sort order (newest first).
    - The page `<title>` becomes the listing link text; a trailing `— notes.rr2.dev` is stripped automatically, so titling the page `<Title> — notes.rr2.dev` is fine.
    - Don't write a "recent posts" footer yourself. A GitHub Action appends a generated "Recently on notes.rr2.dev" block (between `<!-- notes:more:start -->` and `<!-- notes:more:end -->`) before `</body>` of every entry and refreshes the homepage ticker and section lists. When updating an existing page, you can keep or drop that block; it is regenerated either way.
@@ -32,9 +33,19 @@ Static-site collection of LLM-agent notes, maintained by Rahul. Repo `r-r-2/note
 ```
 4. Never touch `CNAME`, `.nojekyll`, `robots.txt`, `llms.txt`, `add-skill.sh`, `skills/`, `research/index.html`, `learning/index.html`, `worklog/index.html` (listings, the homepage lists and each entry's "Recently on" block regenerate automatically via a GitHub Action). Never commit tokens/secrets.
 
+## Unlisted artifacts
+
+`unlisted/<slug>/` is for pages that should be reachable by direct link only, e.g. a talk deck that is presented before it is written up.
+
+- Nothing generated picks it up: no listing page, no homepage ticker or section list, no "Recently on" block injected into it, and it never appears in other pages' "Recently on" blocks.
+- Add `<meta name="robots" content="noindex">` to its `<head>`.
+- Don't link to it from any other page, and don't create `unlisted/index.html` (so `/unlisted/` itself stays a 404).
+- Unlisted is not private: the repo is public, so the file and its commit are visible on GitHub. Nothing secret goes here.
+- To reveal it later, link to `/unlisted/<slug>/` from a normal entry (e.g. the worklog entry about the talk) and drop the `noindex` tag. Don't move it; links already shared keep working.
+
 ## Upload (pick the first that applies; never hardcode or commit tokens)
 
-Commit messages follow Conventional Commits: `feat(<section>): add <slug>` for a new page, `fix(<section>): update <slug>` for changes (section is `research`, `learning` or `worklog`).
+Commit messages follow Conventional Commits: `feat(<section>): add <slug>` for a new page, `fix(<section>): update <slug>` for changes (section is `research`, `learning`, `worklog` or `unlisted`).
 
 ### 1. gh CLI (shell, authenticated — no clone needed)
 

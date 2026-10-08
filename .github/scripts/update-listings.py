@@ -19,6 +19,9 @@ a few lines of inline JS, so they don't go stale between pushes.
 
 Usage: update-listings.py [repo-root]  (defaults to cwd)
 
+unlisted/<slug>/ is deliberately not in KINDS: those pages are reachable by
+direct link only, so nothing here reads, lists or rewrites them. Keep it that way.
+
 Adding a new top-level section: add a key to KINDS and SECTION_LABELS (date-
 sorted listings, homepage and article blocks follow automatically). Also add
 <section>/index.html and extend .github/workflows/update-listings.yml
