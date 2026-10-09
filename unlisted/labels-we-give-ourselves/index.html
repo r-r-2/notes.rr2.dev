@@ -301,6 +301,11 @@ a.build-link:hover{text-decoration-color:var(--accent)}
 /* keep the hud clear of the bottom progress bar */
 .hud{bottom:calc(24px + env(safe-area-inset-bottom,0px))}
 
+
+/* Top 10 stamp sits inside the hackathon card, top-right, clear of the title */
+.build.soi .stamp{top:clamp(.75rem,2.2vmin,1.15rem);right:clamp(.8rem,2.2vmin,1.2rem);transform:rotate(-6deg);box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.build.soi .build-t{padding-right:clamp(5rem,13vmin,7.2rem)}
+
 /* additions */
 .title-tag{justify-self:start;font-family:var(--hand);font-size:clamp(1.6rem,5vmin,3.2rem);line-height:1.1;background:var(--paper);border:2px solid var(--ink);
   border-radius:8px;padding:.15em .55em;transform:rotate(-2deg);box-shadow:4px 4px 0 var(--accent)}
