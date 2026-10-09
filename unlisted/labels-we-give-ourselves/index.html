@@ -672,19 +672,18 @@ const art = {
   incident: () => {
     const leds = [0,1,2,3].map(r => [0,1,2].map(c => `<circle class="led" cx="${292 + c*14}" cy="${92 + r*44}" r="4.5"/>`).join('')).join('');
     const units = [0,1,2,3].map(r => `<rect x="276" y="${78 + r*44}" width="98" height="30" rx="4" fill="#2a2e36"/>`).join('');
-    return `<svg viewBox="0 0 620 330" role="img" aria-label="3 a.m. incident: phone rings, servers fail, slowness and load spike" data-scene>
+    return `<svg viewBox="0 0 620 330" role="img" aria-label="Incident: phone rings, servers fail, slowness and load spike" data-scene>
       <g class="who">${person({x:10,y:40,w:140,h:228,eyes:'both',label:label('Production|Engineer')})}</g>
       <text class="zzz" x="136" y="62" font-family="var(--hand)" font-size="22" fill="var(--muted)">z z</text>
       <g class="phone"><rect x="178" y="214" width="34" height="48" rx="6" fill="var(--ink)"/>
-        <rect x="182" y="220" width="26" height="34" rx="2" fill="#2a2e36"/>
-        <text x="195" y="241" text-anchor="middle" font-family="var(--mono)" font-size="9" font-weight="700" fill="var(--paper)">3:00</text></g>
+        <rect x="182" y="220" width="26" height="34" rx="2" fill="#2a2e36"/></g>
       <g class="ring" stroke="var(--alert)" stroke-width="3" fill="none" stroke-linecap="round">
         <path d="M168 220 q-8 18 0 36"/><path d="M160 214 q-12 24 0 48"/><path d="M222 220 q8 18 0 36"/><path d="M230 214 q12 24 0 48"/></g>
       <rect x="266" y="64" width="118" height="200" rx="8" fill="var(--ink)"/>${units}${leds}
       <text class="mono-s" x="325" y="286" text-anchor="middle">SERVERS</text>
       <rect class="ok-pill" x="404" y="4" width="200" height="28" rx="14" fill="var(--ok)"/>
       <text class="st-ok" x="504" y="23" text-anchor="middle" font-family="var(--mono)" font-size="12" font-weight="700" fill="var(--paper)">ALL SYSTEMS NORMAL</text>
-      <text class="st-bad" x="504" y="23" text-anchor="middle" font-family="var(--mono)" font-size="12" font-weight="700" fill="var(--paper)">OUTAGE · 3:00 AM</text>
+      <text class="st-bad" x="504" y="23" text-anchor="middle" font-family="var(--mono)" font-size="12" font-weight="700" fill="var(--paper)">OUTAGE</text>
       <rect class="panel" x="404" y="44" width="200" height="114" rx="8"/>
       <text class="mono-s" x="418" y="62">RESPONSE TIME</text>
       <polyline class="flat" points="420,130 450,128 480,131 510,127 540,130 570,128 590,129" fill="none" stroke="var(--ok)" stroke-width="3" stroke-linejoin="round"/>
