@@ -294,6 +294,16 @@ def months(entries: list) -> str:
     return "".join(out)
 
 
+def more_cards(picks: list, label: str) -> str:
+    """The small post cards that end every entry (and fill the 404 page)."""
+    if not picks:
+        return ""
+    rows = "".join(f'<li data-sec="{o.section}"><a href="{o.url}" data-fresh="{o.iso}"><span class="nr-meta">'
+                   f'{meta_line(o)}</span><span>{esc(o.title)}</span></a></li>' for o in picks)
+    return (f'<aside class="nr-more" aria-label="{esc(label)}"><div class="nr-more-head"><h2 class="nr-label">'
+            f'{esc(label)}</h2><a href="/">All notes →</a></div><ol>{rows}</ol></aside>')
+
+
 def write_if_changed(path: Path, new: str, what: str) -> bool:
     old = path.read_text(encoding="utf-8") if path.is_file() else ""
     if new == old:
@@ -347,13 +357,7 @@ def update_entry(e: Entry, entries: list, sections: list) -> bool:
         f'<div class="nr-meta" data-sec="{e.section}">{meta_line(e, short=False, new=False)}</div></header>'
         f'<div class="nr-perch" id="nr-perch" data-hello="{e.minutes} min read. Tap me if you need anything."></div>'
         '<div class="nr-content">')
-    others = [o for o in entries if o.url != e.url][:MORE_COUNT]
-    more = ""
-    if others:
-        rows = "".join(f'<li data-sec="{o.section}"><a href="{o.url}" data-fresh="{o.iso}"><span class="nr-meta">'
-                       f'{meta_line(o)}</span><span>{esc(o.title)}</span></a></li>' for o in others)
-        more = (f'<aside class="nr-more" aria-label="Recently on {SITE}"><div class="nr-more-head"><h2 class="nr-label">'
-                f'Recently on notes</h2><a href="/">All notes →</a></div><ol>{rows}</ol></aside>')
+    more = more_cards([o for o in entries if o.url != e.url][:MORE_COUNT], "Recently on notes")
     text = place(text, "head", head_block(), r"</head>", after=False)
     text = place(text, "top", top_block(sections, e.section, post_head), r"<body[^>]*>", after=True)
     text = place(text, "bottom", bottom_block("</div>\n" + more, ("core", "guide")), r"</body>", after=False)
@@ -413,15 +417,16 @@ def update_home(entries: list, sections: list) -> bool:
     return write_if_changed(path, new, "carousel + archive")
 
 
-def update_plain(path: Path, sections: list) -> bool:
-    """A hand-written page (404) that only gets the shared header, guide and footer."""
+def update_plain(path: Path, sections: list, entries: list) -> bool:
+    """A hand-written page (404): the shared header, guide and footer, plus the newest notes to go to instead."""
     if not path.is_file():
         return False
     text = path.read_text(encoding="utf-8")
     new = place(text, "head", head_block(), r"</head>", after=False)
     new = place(new, "top", top_block(sections), r"<body[^>]*>", after=True)
-    new = place(new, "bottom", bottom_block("", ("core", "guide"), toplink=False), r"</body>", after=False)
-    return write_if_changed(path, new, "theme")
+    more = more_cards(entries[:MORE_COUNT], "Newest notes")
+    new = place(new, "bottom", bottom_block(more, ("core", "guide"), toplink=False), r"</body>", after=False)
+    return write_if_changed(path, new, "theme + newest notes")
 
 
 # ------------------------------------------------------------------ main
@@ -437,5 +442,5 @@ if __name__ == "__main__":
             update_section(s, entries, sections)
     if (ROOT / "index.html").is_file():
         update_home(entries, sections)
-    update_plain(ROOT / "404.html", sections)
+    update_plain(ROOT / "404.html", sections, entries)
     sys.exit(0)

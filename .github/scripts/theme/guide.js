@@ -166,6 +166,7 @@
   // ================================================================ other pages
   function page() {
     if (!P) { L.hidden = true; return; }
+    if (P.getAttribute('data-pose') === 'lost') { pose('stand'); W.classList.add('lost'); }   // 404: standing, looking around
     function measure() {
       var mr = M.getBoundingClientRect(), pr = P.getBoundingClientRect();
       L.style.top = (pr.top - mr.top) + 'px';
