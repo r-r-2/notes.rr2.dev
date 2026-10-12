@@ -208,10 +208,12 @@ GUIDE_SVG = (
     '<g class="torso"><path class="ln" d="M35 31 L34 59"/><path class="ln far" d="M35 38 L31 49 L28 58"/>'
     '<path class="ln arm" d="M35 38 L30 49 L26 58"/>'
     + FACE.format(x=35, y=18, ex1=28.5, ex2=35, ey=16.5, mouth="M27.5 22.5 Q31 25.5 34.5 22.5") +
+    '<g class="wv"><path class="ln" d="M35 38 L22 38"/><path class="ln fa" d="M22 38 L14 27"/></g>'
     '</g><path class="ln" d="M34 60 L22 60"/><path class="ln shin-n" d="M22 60 L21 85 L16.5 85.5"/></g></g>'
     '<g class="p-stand"><path class="ln wave-arm" d="M30 41 L22 52 L20 61"/><path class="ln" d="M30 41 L38 52 L40 61"/>'
     '<path class="ln" d="M30 36 L30 63 M30 63 L26 75 L24 86 M30 63 L34 75 L36 86"/>'
     + FACE.format(x=30, y=23, ex1=25.5, ex2=34.5, ey=22, mouth="M25.5 27 Q30 30.5 34.5 27") +
+    '<g class="wv"><path class="ln" d="M30 41 L18 38"/><path class="ln fa" d="M18 38 L12 26"/></g>'
     '</g><g class="p-hang"><path class="ln" d="M30 42 L22 29 L28 3 M30 42 L38 29 L32 3 M30 37 L30 64"/>'
     '<path class="ln hleg-l" d="M30 64 L26 75 L25 86"/><path class="ln hleg-r" d="M30 64 L34 75 L35 86"/>'
     + FACE.format(x=30, y=24, ex1=25.5, ex2=34.5, ey=23, mouth="M25.5 28 Q30 31.5 34.5 28") +

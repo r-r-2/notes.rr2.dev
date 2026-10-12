@@ -294,6 +294,13 @@ html body { max-width: none; margin: 0; padding: 0; background: var(--nr-bg); co
 .nr-buddy .shin-n { transform-origin: 22px 60px; }
 .nr-buddy .shin-f { transform-origin: 25px 58px; }
 .nr-buddy .wave-arm { transform-origin: 30px 41px; }
+/* waving: a raised arm drawn in front of the head, the forearm wags from the elbow */
+.nr-buddy .wv { display: none; }
+.nr-buddy .wv, .nr-buddy .wv .fa { transform-box: view-box; }
+.nr-buddy .p-stand .wv { transform-origin: 30px 41px; }
+.nr-buddy .p-stand .wv .fa { transform-origin: 18px 38px; }
+.nr-buddy .p-sit .wv { transform-origin: 35px 38px; }
+.nr-buddy .p-sit .wv .fa { transform-origin: 22px 38px; }
 .nr-buddy .hleg-l, .nr-buddy .hleg-r { transform-origin: 30px 64px; }
 .nr-buddy.left .who { transform: scaleX(-1); }
 .nr-buddy .p-stand, .nr-buddy .p-hang { display: none; }
@@ -348,7 +355,9 @@ html body { max-width: none; margin: 0; padding: 0; background: var(--nr-bg); co
   .nr-buddy.off .shin-n, .nr-buddy.off .shin-f, .nr-buddy.push .shin-n, .nr-buddy.push .shin-f { animation-play-state: paused; }
   .nr-buddy.push .torso { animation: nr-lean 1.05s cubic-bezier(.35,.1,.25,1); }
   .nr-buddy.push .arm { animation: nr-reach 1.05s cubic-bezier(.35,.1,.25,1); }
-  .nr-buddy.wave .arm, .nr-buddy.wave .wave-arm { animation: nr-wave 1.4s ease-in-out; }
+  .nr-buddy.wave .p-sit .arm, .nr-buddy.wave .wave-arm { visibility: hidden; }
+  .nr-buddy.wave .wv { display: inline; animation: nr-raise 1.4s ease-in-out; }
+  .nr-buddy.wave .wv .fa { animation: nr-wag 1.4s ease-in-out; }
   .nr-buddy.land .p-sit { animation: nr-plop .5s cubic-bezier(.3,1.6,.5,1); }
   .nr-gw.hang .nr-buddy svg { transform-origin: 50% 3%; animation: nr-sway 2.6s ease-in-out infinite; }
   .nr-gw.hang .hleg-l { animation: nr-dangle 2.6s ease-in-out infinite; }
@@ -362,7 +371,8 @@ html body { max-width: none; margin: 0; padding: 0; background: var(--nr-bg); co
 @keyframes nr-lean { 0% { rotate: 0deg; } 26% { rotate: -68deg; } 34% { rotate: -70deg; } 62% { rotate: -74deg; } 82% { rotate: -20deg; } 100% { rotate: 0deg; } }
 @keyframes nr-reach { 0% { rotate: 0deg; scale: 1; } 26% { rotate: 44deg; scale: 1.42; } 34% { rotate: 50deg; scale: 1.44; }
                       62% { rotate: 80deg; scale: 1.5; } 82% { rotate: 22deg; scale: 1.05; } 100% { rotate: 0deg; scale: 1; } }
-@keyframes nr-wave { 0%, 100% { rotate: 0deg; } 20% { rotate: 150deg; } 35% { rotate: 120deg; } 50% { rotate: 155deg; } 65% { rotate: 120deg; } 80% { rotate: 150deg; } }
+@keyframes nr-raise { 0% { rotate: -95deg; } 16%, 84% { rotate: 0deg; } 100% { rotate: -95deg; } }
+@keyframes nr-wag { 0%, 16% { rotate: 0deg; } 27% { rotate: -22deg; } 40% { rotate: 18deg; } 53% { rotate: -22deg; } 66% { rotate: 18deg; } 76% { rotate: -10deg; } 84%, 100% { rotate: 0deg; } }
 @keyframes nr-plop { 0% { translate: 0 -10px; } 100% { translate: 0 0; } }
 @keyframes nr-sway { 0%, 100% { rotate: -4deg; } 50% { rotate: 4deg; } }
 @keyframes nr-dangle { 0%, 100% { rotate: 5deg; } 50% { rotate: -5deg; } }
