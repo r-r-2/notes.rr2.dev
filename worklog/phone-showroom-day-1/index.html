@@ -243,8 +243,11 @@ acts.appendChild(el);
 });
 bub.classList.toggle('has-acts', !!(list && list.length));
 bub.style.setProperty('--bs', '0px'); bub.classList.add('show'); fit();
-clearTimeout(ht); if (ms) ht = setTimeout(hide, ms);
+clearTimeout(ht); ht = 0; hold = 0; if (ms) ht = setTimeout(hide, ms);
 }
+var hold = 0;
+bub.addEventListener('mouseenter', function () { if (ht) { hold = 1; clearTimeout(ht); } });
+bub.addEventListener('mouseleave', function () { if (hold) { hold = 0; ht = setTimeout(hide, 2500); } });
 function play(c) { B.classList.remove(c); void B.offsetWidth; B.classList.add(c); setTimeout(function () { B.classList.remove(c); }, 1400); }
 function pose(p) { W.classList.remove('stand', 'hang', 'zipping'); if (p) W.classList.add(p); }
 function toTop() { scrollTo({ top: 0, behavior: still ? 'auto' : 'smooth' }); hide(); }
@@ -321,8 +324,7 @@ document.querySelectorAll('.nr-chips [data-sec]').forEach(function (c) {
 var f = c.dataset.f, name = c.firstChild.textContent.trim();
 list.push([name, function () { goTo(f, name + ', newest first.'); }]);
 });
-list.push(["I'm good", function () { say('Okay! Tap me any time.', [], 2000); }]);
-say('Want a hand finding something?', list, 0);
+say('Want a hand finding something?', list, 7000);
 }
 function skip() {
 if (!intro) return; intro = false; T.forEach(clearTimeout); hide();
