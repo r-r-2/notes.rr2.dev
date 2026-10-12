@@ -1,9 +1,9 @@
 name: update-listings
 
-# Everything generated from the entry pages is refreshed here:
-# - listing pages (research/index.html, learning/index.html, worklog/index.html)
-# - homepage "Latest" ticker and expandable section lists (index.html)
-# - the "Recently on notes.rr2.dev" block at the end of every entry page
+# Everything generated from the entry pages and the design is refreshed here:
+# - section pages (research/index.html, learning/index.html, worklog/index.html)
+# - homepage carousel and archive (index.html), and the 404 page's header/footer
+# - every entry's inlined design, header, title block and "Recently on notes" cards
 # New research/<slug>/, learning/<slug>/, or worklog/<slug>/ dirs get picked up here.
 #
 # The bot's own push uses GITHUB_TOKEN, which does not trigger workflows, so
@@ -19,6 +19,7 @@ on:
       - '!learning/index.html'
       - '!worklog/index.html'
       - '.github/scripts/update-listings.py'
+      - '.github/scripts/theme/**'
       - '.github/workflows/update-listings.yml'
   workflow_dispatch:
 
@@ -49,7 +50,7 @@ jobs:
             exit 0
           fi
           CHANGED=$(git diff --name-only HEAD~1 HEAD -- research learning worklog \
-            .github/scripts/update-listings.py .github/workflows/update-listings.yml 2>/dev/null || true)
+            .github/scripts/update-listings.py .github/scripts/theme .github/workflows/update-listings.yml 2>/dev/null || true)
           if [ -z "$CHANGED" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No relevant changes. Skipping."
@@ -64,6 +65,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A research learning worklog index.html
-          git diff --cached --quiet || git commit -m "chore(listings): regenerate listings, homepage and recent-notes blocks"
+          git add -A research learning worklog index.html 404.html
+          git diff --cached --quiet || git commit -m "chore(listings): regenerate pages, homepage and section lists"
           git push

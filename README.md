@@ -7,7 +7,9 @@ by Arnav Gupta.
 
 ## Layout
 
-- `/index.html` — apex page. Spartan. Keep it that way.
+- `/index.html` — homepage. The intro paragraph is hand-written; everything between `<!-- nr:… -->` markers is generated.
+- `/assets/fonts/` — the two web fonts (Fraunces for headings, Caveat for the guide's speech), subset to Latin.
+- `/favicon.ico` — same icon as rr2.dev.
 - `/research/<report-name>/index.html` — reports.
 - `/learning/<guide-name>/index.html` — guides.
 - `/worklog/<entry-name>/index.html` — worklog entries.
@@ -17,18 +19,20 @@ by Arnav Gupta.
 ## Rules
 
 - Every page is self-contained HTML with inline CSS/JS. No build step, no frameworks, no external dependencies unless unavoidable.
+- The site design (colours, fonts, header, footer, the stick-figure guide) lives in `.github/scripts/theme/`. The generator minifies it and inlines it into every page, so pages stay self-contained. Edit the design there, never in a page.
 - Slugs are lowercase kebab-case.
 - Adding a page? Follow `/llms.txt`.
 
 ## Generated content
 
-`.github/scripts/update-listings.py` (run by the `update-listings` Action on every push that touches an entry) rewrites:
+`.github/scripts/update-listings.py` (run by the `update-listings` Action on every push that touches an entry or the design) rewrites:
 
-- `research/`, `learning/`, `worklog/` listing pages,
-- the homepage "Latest" ticker and section lists (between `<!-- latest:… -->` and `<!-- sections:… -->` markers in `index.html`),
-- the "Recently on notes.rr2.dev" block at the end of every entry (between `<!-- notes:more:… -->` markers).
+- every entry page, between its `<!-- nr:head:… -->`, `<!-- nr:top:… -->` and `<!-- nr:bottom:… -->` markers: the inlined design, the site header, the title block (title, description, date, reading time, section), the "Recently on notes" cards, the guide and the footer. The entry's own content between the markers is never touched;
+- the `research/`, `learning/` and `worklog/` section pages, whole;
+- the homepage's Recent posts carousel and month-by-month archive (between `<!-- nr:home:… -->`), plus its head, header and footer;
+- the header and footer of `404.html`.
 
-Don't hand-edit inside those markers. To regenerate locally: `python3 .github/scripts/update-listings.py`.
+Don't hand-edit inside those markers. To regenerate locally: `python3 .github/scripts/update-listings.py`. Running it twice changes nothing.
 
 ## Commits
 

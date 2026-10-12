@@ -19,7 +19,9 @@ Static-site collection of LLM-agent notes, maintained by Rahul. Repo `r-r-2/note
    - unlisted artifact (talk deck, draft, anything meant to be reached by direct link only) → `unlisted/<slug>/index.html` (serves at `/unlisted/<slug>/`). See "Unlisted artifacts" below; the date, title and "recent posts" notes that follow don't apply to it.
    - Add `<meta name="date" content="YYYY-MM-DD">` to the `<head>` of every entry so its date appears in the section listing and sort order (newest first).
    - The page `<title>` becomes the listing link text; a trailing `— notes.rr2.dev` is stripped automatically, so titling the page `<Title> — notes.rr2.dev` is fine.
-   - Don't write a "recent posts" footer yourself. A GitHub Action appends a generated "Recently on notes.rr2.dev" block (between `<!-- notes:more:start -->` and `<!-- notes:more:end -->`) before `</body>` of every entry and refreshes the homepage ticker and section lists. When updating an existing page, you can keep or drop that block; it is regenerated either way.
+   - Add `<meta name="description" content="...">`: one plain sentence on what the page is. It shows under the title and on the homepage cards.
+   - Start `<body>` with your content. Don't write the page title, a date line, breadcrumbs, a site header, a footer or a "recent posts" list. A GitHub Action adds all of them in the site's design (title from `<title>`, then the description, date, reading time and section), wraps your content in the reading column, and refreshes the homepage and section lists. Its additions sit between `<!-- nr:head:… -->`, `<!-- nr:top:… -->` and `<!-- nr:bottom:… -->` markers; when updating an existing page, keep or drop them, they are regenerated either way.
+   - Styling: your own CSS still applies inside the content column. Style components with classes; bare element rules (`body`, `h1`, `h2`, `a`) are overridden by the site theme, which also sets the fonts and light/dark mode. For colours, use CSS variables named `--bg`, `--fg`, `--muted`, `--hair`, `--panel`, `--rust`, `--moss`, `--ink-blue`, `--wash-rust`, `--wash-moss`, `--wash-blue` (define light values on `:root`); the theme supplies dark-mode values for exactly these names.
 3. Analytics: include this GA4 gtag snippet in `<head>` of every new `index.html`. The Measurement ID is not a secret — put it in the HTML, not in `.env`.
 
 ```html
@@ -31,13 +33,13 @@ Static-site collection of LLM-agent notes, maintained by Rahul. Repo `r-r-2/note
   gtag('config', 'G-2QQWNZ1TJ4');
 </script>
 ```
-4. Never touch `CNAME`, `.nojekyll`, `robots.txt`, `llms.txt`, `add-skill.sh`, `skills/`, `research/index.html`, `learning/index.html`, `worklog/index.html` (listings, the homepage lists and each entry's "Recently on" block regenerate automatically via a GitHub Action). Never commit tokens/secrets.
+4. Never touch `CNAME`, `.nojekyll`, `robots.txt`, `llms.txt`, `add-skill.sh`, `skills/`, `index.html`, `404.html`, `research/index.html`, `learning/index.html`, `worklog/index.html`, `assets/`, `favicon.ico`, `.github/scripts/` (the homepage, section lists, site design and each entry's header and "Recently on" block regenerate automatically via a GitHub Action). Never commit tokens/secrets.
 
 ## Unlisted artifacts
 
 `unlisted/<slug>/` is for pages that should be reachable by direct link only, e.g. a talk deck that is presented before it is written up.
 
-- Nothing generated picks it up: no listing page, no homepage ticker or section list, no "Recently on" block injected into it, and it never appears in other pages' "Recently on" blocks.
+- Nothing generated picks it up: no listing page, no homepage carousel or section list, no "Recently on" block injected into it, and it never appears in other pages' "Recently on" blocks.
 - Add `<meta name="robots" content="noindex">` to its `<head>`.
 - Don't link to it from any other page, and don't create `unlisted/index.html` (so `/unlisted/` itself stays a 404).
 - Unlisted is not private: the repo is public, so the file and its commit are visible on GitHub. Nothing secret goes here.
@@ -82,6 +84,7 @@ Ref: https://docs.github.com/en/rest/repos/contents#create-or-update-file-conten
 
 - [ ] Page renders standalone (open the file directly, no server needed).
 - [ ] GA4 gtag snippet (`G-2QQWNZ1TJ4`) is in `<head>`.
-- [ ] You pushed only your page (listings, homepage and "Recently on" blocks update themselves via Action).
+- [ ] Your page has `<title>`, `<meta name="date">` and `<meta name="description">`, and its `<body>` starts with content, not a title or date line.
+- [ ] You pushed only your page (listings, homepage, the page's header and "Recently on" block update themselves via Action).
 - [ ] No secrets, tokens, or personal data committed.
 - [ ] Tell the human the public URL.
