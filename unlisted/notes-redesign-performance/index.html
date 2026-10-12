@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What the notes.rr2.dev redesign costs in speed — notes.rr2.dev</title>
+<meta name="description" content="Rahul benchmarked the old and new notes.rr2.dev on four network speeds: the redesign adds about 40KB and a fifth of a second on a first visit, while photos, video and repeat visits barely change.">
+<meta name="date" content="2026-10-12">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<style>
+  @font-face { font-family: "Fraunces"; src: url(/assets/fonts/fraunces.woff2) format("woff2"); font-weight: 500 600; font-display: swap; }
+  :root { color-scheme: light dark; --bg: #f3f4f6; --card: #fff; --fg: #1f2329; --text: #2c3038; --muted: #5d636d; --hair: #e2e5ea; --panel: #f7f8fa; --moss: #2f6a4a; --rust: #a8452c; --link: #2f6690; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #16191e; --card: #1e2228; --fg: #e8eaee; --text: #d3d7de; --muted: #9aa1ac; --hair: #2e333b; --panel: #22262d; --moss: #7cc49b; --rust: #f0957a; --link: #8cc4ee; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 40px 16px 64px; }
+  .crumb { font-size: .85rem; color: var(--muted); margin: 0 0 18px; }
+  .crumb a { color: inherit; }
+  h1 { font: 600 2.1rem/1.15 "Fraunces", Georgia, serif; color: var(--fg); letter-spacing: -.01em; margin: 0 0 10px; }
+  h2 { font: 600 1.35rem/1.25 "Fraunces", Georgia, serif; color: var(--fg); margin: 2.2rem 0 .7rem; }
+  .lede { color: var(--muted); margin: 0 0 6px; }
+  .dateline { font-size: .85rem; color: var(--muted); margin: 0 0 28px; padding-bottom: 20px; border-bottom: 1px solid var(--hair); }
+  a { color: var(--link); }
+  code { font: .88em ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--panel); padding: .1em .35em; border-radius: 4px; }
+  .table { overflow-x: auto; background: var(--card); border: 1px solid var(--hair); border-radius: 8px; margin: 1rem 0; }
+  .perf td, .perf th { border-bottom-color: var(--hair) !important; }
+  .perf tr:last-child td { border-bottom: 0; }
+  .verdict { background: var(--card) !important; }
+  li { margin: .25rem 0; }
+
+  
+  .perf { width: 100%; border-collapse: collapse; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+  .perf th, .perf td { padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--hair); text-align: right; white-space: nowrap; }
+  .perf th:first-child, .perf td:first-child { text-align: left; }
+  .perf thead th { color: var(--muted); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; }
+  .perf .worse { color: var(--rust); }
+  .perf .same { color: var(--muted); }
+  .verdict { padding: 0.9rem 1.1rem; border: 1px solid var(--hair); border-left: 4px solid var(--moss); border-radius: 6px; background: var(--panel); }
+  .verdict > p:last-child { margin: 0; }
+  .small { font-size: 0.85rem; color: var(--muted); }
+
+  :root { --old: #b07020; --new: #1f6fb8; --ctx: #9aa1ac; }
+  @media (prefers-color-scheme: dark) { :root { --old: #b8803a; --new: #4a95dc; --ctx: #6b727d; } }
+  .chart { background: var(--card); border: 1px solid var(--hair); border-radius: 10px; padding: 16px 16px 12px; margin: 1rem 0; position: relative; }
+  .legend { display: flex; gap: 16px; font-size: .82rem; color: var(--muted); margin: 0 0 10px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .row { display: grid; grid-template-columns: 8.5rem 1fr; gap: 10px; align-items: center; margin: 10px 0; }
+  .row .lbl { font-size: .86rem; color: var(--text); line-height: 1.25; }
+  .row .lbl small { display: block; color: var(--muted); font-size: .76rem; }
+  .bars { display: flex; flex-direction: column; gap: 3px; }
+  .track { position: relative; height: 16px; }
+  .bar { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 0 4px 4px 0; transition: width .9s cubic-bezier(.2,.8,.2,1); }
+  .bar.o { background: var(--old); } .bar.n { background: var(--new); } .bar.c { background: var(--ctx); }
+  .val { position: absolute; top: 50%; transform: translateY(-50%); font-size: .76rem; color: var(--text); white-space: nowrap; padding-left: 6px; opacity: 0; transition: opacity .3s .7s; font-variant-numeric: tabular-nums; }
+  .chart.in .val { opacity: 1; }
+  .val.in { padding: 0 8px 0 0; color: #fff; font-weight: 600; }
+  .axis { display: grid; grid-template-columns: 8.5rem 1fr; gap: 10px; font-size: .72rem; color: var(--muted); }
+  .axis div { display: flex; justify-content: space-between; border-top: 1px solid var(--hair); padding-top: 4px; }
+  .tip { position: absolute; pointer-events: none; background: var(--fg); color: var(--bg); font-size: .78rem; padding: 4px 8px; border-radius: 6px; white-space: nowrap; opacity: 0; transform: translate(-50%, -130%); transition: opacity .12s; z-index: 2; }
+  .tip.on { opacity: 1; }
+  .bighint { font-size: .9rem; margin: .4rem 0 0; }
+  .zero { display: flex; gap: 12px; align-items: center; margin: .8rem 0; }
+  .zero b { white-space: nowrap; font: 600 2rem/1 "Fraunces", Georgia, serif; color: var(--fg); }
+  details.tv summary { cursor: pointer; font-size: .85rem; color: var(--link); margin-top: 6px; }
+  @media (max-width: 520px) { .row, .axis { grid-template-columns: 6.2rem 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .bar, .val { transition: none; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+<p class="crumb"><a href="/">notes.rr2.dev</a></p>
+<h1>What the notes.rr2.dev redesign costs in speed</h1>
+<p class="lede">The old and new site, tested on four network speeds.</p>
+<p class="dateline">12 Oct 2026 · Back to the <a href="/worklog/notes-rr2-dev-redesign/">redesign post</a></p>
+
+<div class="verdict"><p><strong>Short answer:</strong> the first visit downloads about 40KB more, and text shows up 0.05–0.3 seconds later. Photos, video and repeat visits barely change. No lightweight mode needed.</p></div>
+
+<h2>When text appears</h2>
+<p>Seconds until the first words show, on a first visit to a text-only note. Shorter is better.</p>
+<div class="chart" id="c1">
+  <div class="legend"><span><i style="background:var(--old)"></i>Old site</span><span><i style="background:var(--new)"></i>New site</span></div>
+  <div data-max="1" data-unit=" s" data-rows='[["Wi-Fi","",0.09,0.14],["Typical 4G","",0.22,0.44],["Slow 4G","",0.36,0.54],["Slow 3G","slowest",0.57,0.89]]'></div>
+  <div class="axis"><span></span><div><span>0 s</span><span>0.5 s</span><span>1 s</span></div></div>
+  <details class="tv"><summary>Show as a table</summary>
+  <div class="table"><table class="perf">
+    <thead><tr><th>Connection</th><th>Old</th><th>New</th><th>Change</th></tr></thead>
+    <tbody>
+      <tr><td>Wi-Fi</td><td>0.09 s</td><td>0.14 s</td><td class="worse">+0.05 s</td></tr>
+      <tr><td>Typical 4G</td><td>0.22 s</td><td>0.44 s</td><td class="worse">+0.21 s</td></tr>
+      <tr><td>Slow 4G</td><td>0.36 s</td><td>0.54 s</td><td class="worse">+0.18 s</td></tr>
+      <tr><td>Slow 3G</td><td>0.57 s</td><td>0.89 s</td><td class="worse">+0.32 s</td></tr>
+    </tbody>
+  </table></div></details>
+</div>
+<p class="bighint">Even on slow 3G, the new site shows text in under a second.</p>
+
+<h2>What gets downloaded</h2>
+<p>The first visit to a text-only note, next to a typical web page.</p>
+<div class="chart" id="c2">
+  <div data-max="2100" data-unit=" KB" data-single="1" data-rows='[["Old site","",3,"o"],["New site","phone",42,"n"],["New site","desktop",66,"n"],["Google Analytics","on both sites",155,"c"],["Typical web page","mobile, 2025",2100,"c"]]'></div>
+  <div class="axis"><span></span><div><span>0</span><span>1,000 KB</span><span>2,000 KB</span></div></div>
+</div>
+<p class="bighint">The extra is two small fonts and the design inside each page. Next to a typical page, it is a sliver.</p>
+<div class="zero"><b>0 KB</b><span>Repeat visits download nothing, on the old site and the new one. Fonts and pages come from the cache.</span></div>
+
+<h2>Photos and video</h2>
+<ul>
+  <li>Photos arrive at the same time as before.</li>
+  <li>The video's poster shows up to 0.75 s later on slow 3G. Playback is unchanged.</li>
+  <li>No layout jumps, and the page never freezes on a phone.</li>
+</ul>
+
+<h2>Why no "lite" toggle</h2>
+<ul>
+  <li>The cost is on the first visit, before anyone can press a toggle.</li>
+  <li>After that, everything is cached.</li>
+  <li>Bigger wins exist: lazy-load photos, respect data-saver mode, and use lighter analytics. Google Analytics alone adds about 155KB, four times the redesign.</li>
+</ul>
+
+<h2>How it was tested</h2>
+<p>Old and new site served like GitHub Pages, on six kinds of page and four throttled connections in Chrome, from Wi-Fi to slow 3G on a slowed-down phone. Three runs each, medians shown. Analytics was blocked in every run.</p>
+
+<h2>Sources</h2>
+<ul class="small">
+  <li><a href="https://almanac.httparchive.org/en/2025/page-weight">HTTP Archive Web Almanac 2025: page weight</a></li>
+  <li><a href="https://raw.githubusercontent.com/GoogleChrome/lighthouse/HEAD/docs/throttling.md">Lighthouse throttling settings</a></li>
+  <li><a href="https://scripts.nuxt.com/learn/analytics-script-performance">The true cost of analytics scripts</a></li>
+</ul>
+
+<p class="small">This note was generated in a Claude session (Opus 5.5).</p>
+</main>
+
+<script>
+(function () {
+  var tip = document.createElement('div'); tip.className = 'tip'; document.body.appendChild(tip);
+  function fmt(v, u) { return (u === ' KB' ? v.toLocaleString('en') : v) + u; }
+  document.querySelectorAll('.chart [data-rows]').forEach(function (host) {
+    var rows = JSON.parse(host.dataset.rows), max = +host.dataset.max, u = host.dataset.unit, single = host.dataset.single;
+    rows.forEach(function (r) {
+      var row = document.createElement('div'); row.className = 'row';
+      row.innerHTML = '<div class="lbl">' + r[0] + (r[1] ? '<small>' + r[1] + '</small>' : '') + '</div><div class="bars"></div>';
+      var bars = row.querySelector('.bars');
+      var items = single ? [[r[3], r[2], r[0] + (r[1] ? ' (' + r[1] + ')' : '')]] : [['o', r[2], r[0] + ', old site'], ['n', r[3], r[0] + ', new site']];
+      items.forEach(function (it) {
+        var tr = document.createElement('div'); tr.className = 'track';
+        var w = Math.max(.6, it[1] / max * 100);
+        var inside = w > 70; tr.innerHTML = '<div class="bar ' + it[0] + '" data-w="' + w + '"></div><span class="val' + (inside ? ' in' : '') + '" style="' + (inside ? 'right:' + (100 - w) + '%' : 'left:' + w + '%') + '">' + fmt(it[1], u) + '</span>';
+        var bar = tr.firstChild;
+        tr.addEventListener('pointermove', function (e) { tip.textContent = it[2] + ': ' + fmt(it[1], u); tip.style.left = e.pageX + 'px'; tip.style.top = e.pageY + 'px'; tip.classList.add('on'); });
+        tr.addEventListener('pointerleave', function () { tip.classList.remove('on'); });
+        bars.appendChild(tr);
+      });
+      host.appendChild(row);
+    });
+  });
+  function grow(ch) { ch.classList.add('in'); ch.querySelectorAll('.bar').forEach(function (b, i) { b.style.transitionDelay = (i * 70) + 'ms'; b.style.width = b.dataset.w + '%'; }); }
+  var charts = document.querySelectorAll('.chart');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { grow(e.target); io.unobserve(e.target); } }); }, { threshold: .35 });
+    charts.forEach(function (c) { io.observe(c); });
+  } else charts.forEach(grow);
+})();
+</script>
+</body>
+</html>
