@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How code made the marimba music in the launch video — notes.rr2.dev</title>
+<meta name="description" content="How the music in the notes.rr2.dev launch video was made with code and no instrument, explained from first principles, like you are five.">
+<meta name="date" content="2026-10-12">
+<style>
+  :root { --bg: #f3f4f6; --fg: #1f2329; --muted: #5d636d; --hair: #e2e5ea; --panel: #ffffff; --rust: #a8452c; --moss: #2f6a4a; --ink-blue: #2f6690; --wash-rust: #fbeee9; --wash-moss: #e8f3ec; --wash-blue: #e2edf6; }
+  .mm section { margin: 2.4rem 0; }
+  .mm .key { padding: .75rem 1rem; border-left: 4px solid var(--rust); background: var(--wash-rust); border-radius: 6px; }
+  .mm .key b { display: block; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--rust); margin-bottom: .15rem; }
+  .mm .like { padding: .75rem 1rem; border-left: 4px solid var(--moss); background: var(--wash-moss); border-radius: 6px; }
+  .mm .like b { display: block; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--moss); margin-bottom: .15rem; }
+  .mm .ask { font-weight: 600; color: var(--ink-blue); font-size: 1.05rem; }
+  .mm .ask::before { content: "🤔 "; }
+  .mm .lab { margin: 1.2rem 0; padding: 1rem; border: 1px solid var(--hair); border-radius: 12px; background: var(--panel); }
+  .mm .small { font-size: .86rem; color: var(--muted); }
+  .mm .btns { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .mm .btns button, .mm .play { font: inherit; font-size: .92rem; padding: .45rem .9rem; border-radius: 999px; border: 1px solid var(--hair); background: var(--bg); color: var(--fg); cursor: pointer; }
+  .mm .btns button:hover, .mm .play:hover { border-color: var(--ink-blue); }
+  .mm .btns button[aria-pressed="true"], .mm .play[aria-pressed="true"] { background: var(--ink-blue); border-color: var(--ink-blue); color: #fff; }
+  .mm .now { font-size: .9rem; color: var(--muted); margin: .7rem 0 0; min-height: 1.3em; }
+
+  /* the video and its cue timeline */
+  .mm video { display: block; width: 100%; border-radius: 10px; background: #000; }
+  .mm .cues { position: relative; height: 34px; margin: .9rem 6px .2rem; }
+  .mm .cues .rail { position: absolute; left: 0; right: 0; top: 15px; height: 4px; border-radius: 2px; background: var(--hair); }
+  .mm .cues .done { position: absolute; left: 0; top: 15px; height: 4px; border-radius: 2px; background: var(--ink-blue); width: 0; }
+  .mm .cues button { position: absolute; top: 7px; width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; border: 3px solid var(--panel); background: var(--muted); cursor: pointer; padding: 0; }
+  .mm .cues button.on { background: var(--rust); transform: scale(1.25); }
+  .mm .cuetxt { font-size: .9rem; min-height: 1.4em; margin: .2rem 0 0; }
+  .mm .cuetxt b { color: var(--rust); }
+
+  /* the marimba you can play */
+  .mm .marimba { display: flex; align-items: flex-start; justify-content: center; gap: 6px; padding: 18px 10px 8px; }
+  .mm .marimba button { position: relative; width: 11%; max-width: 58px; border: 0; padding: 0; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+  .mm .marimba .bar { display: block; width: 100%; border-radius: 6px; background: linear-gradient(180deg, #c98a52, #9a5a2c); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18); transition: transform .08s; }
+  .mm .marimba .tube { display: block; width: 46%; margin-top: 6px; border-radius: 0 0 8px 8px; background: linear-gradient(90deg, #9aa1ac, #d7dbe0 45%, #8b929c); opacity: .75; }
+  .mm .marimba .nm { position: absolute; top: 8px; left: 0; right: 0; text-align: center; font-size: .78rem; font-weight: 700; color: #fff7ee; pointer-events: none; }
+  .mm .marimba button.hit .bar { animation: mm-hit .35s ease-out; }
+  @keyframes mm-hit { 0% { transform: translateY(5px) scaleY(.97); } 40% { transform: translateY(-2px); } 100% { transform: none; } }
+
+  /* sound pictures */
+  .mm canvas { display: block; width: 100%; border-radius: 8px; background: var(--bg); }
+  .mm .cap { font-size: .8rem; color: var(--muted); margin: .3rem 0 0; }
+  .mm .layers { display: grid; grid-template-columns: 1fr auto; gap: .35rem .7rem; align-items: center; margin-top: .9rem; }
+  .mm .layers canvas { height: 46px; }
+  .mm .layers span { font-size: .8rem; color: var(--muted); white-space: nowrap; }
+  .mm .layers .off { opacity: .2; }
+
+  /* the groove grid */
+  .mm .grid { display: grid; grid-template-columns: 5.2rem repeat(8, 1fr); gap: 4px; margin-top: .9rem; font-size: .78rem; }
+  .mm .grid .rl { color: var(--muted); align-self: center; }
+  .mm .grid i { height: 22px; border-radius: 5px; background: var(--hair); }
+  .mm .grid i.x { background: var(--ink-blue); opacity: .45; }
+  .mm .grid i.x.lit { opacity: 1; transform: scale(1.08); }
+  .mm .grid i.col { outline: 2px solid var(--rust); outline-offset: 1px; }
+  .mm .chord { font-size: 1.6rem; font-weight: 700; color: var(--rust); min-width: 3ch; display: inline-block; }
+
+  .mm table.cue { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  .mm table.cue td, .mm table.cue th { padding: .4rem .5rem; border-bottom: 1px solid var(--hair); text-align: left; vertical-align: top; }
+  .mm table.cue th { font-size: .74rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+  .mm table.cue td:first-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .mm .chain { counter-reset: c; list-style: none; padding: 0; }
+  .mm .chain li { counter-increment: c; position: relative; padding: .35rem 0 .35rem 2.2rem; }
+  .mm .chain li::before { content: counter(c); position: absolute; left: 0; top: .35rem; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--wash-blue); color: var(--ink-blue); font-size: .8rem; font-weight: 700; display: grid; place-items: center; }
+  .mm pre { overflow-x: auto; font-size: .8rem; line-height: 1.5; padding: .9rem 1rem; border: 1px solid var(--hair); border-radius: 8px; background: var(--panel); }
+  .mm .code { margin: .9rem 0 1.1rem; }
+  .mm .code pre { margin: 0; }
+  .mm .snip { display: inline-block; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin: 0 0 .3rem; }
+  .mm table.tools { width: 100%; border-collapse: collapse; font-size: .92rem; margin: .6rem 0; }
+  .mm table.tools td { padding: .5rem .5rem; border-bottom: 1px solid var(--hair); vertical-align: top; }
+  .mm table.tools td:first-child { white-space: nowrap; font-weight: 600; }
+  .mm details summary { cursor: pointer; color: var(--ink-blue); font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) { .mm .marimba button.hit .bar { animation: none; } }
+</style>
+</head>
+<body>
+<div class="mm">
+
+<p>Turn your sound on and play this video. Listen to the happy, bouncy music.</p>
+
+<div class="lab">
+  <video id="vid" controls playsinline preload="metadata" poster="/worklog/notes-rr2-dev-redesign/poster.jpg">
+    <source src="/worklog/notes-rr2-dev-redesign/notes-redesign-launch.mp4" type="video/mp4">
+  </video>
+  <div class="cues" id="cues" aria-label="Sound moments in the video"><div class="rail"></div><div class="done" id="done"></div></div>
+  <p class="cuetxt" id="cuetxt" aria-live="polite">Each dot is a sound that matches something on screen. Tap a dot to jump there.</p>
+</div>
+
+<p>Nobody played this music. Nobody recorded it. There is no instrument in it. A small computer program made every sound from numbers.</p>
+<p>This page shows how, one question at a time, like you are five. It is the music from the <a href="/worklog/notes-rr2-dev-redesign/">notes.rr2.dev redesign post</a>.</p>
+
+<section>
+  <h2>First: what is a marimba?</h2>
+  <p>A marimba is a big wooden xylophone. It has a row of wooden bars. You hit the bars with soft mallets, like sticks with balls of yarn on the end.</p>
+  <p>Long bars make low notes. Short bars make high notes. Under each bar hangs a metal tube. The tube makes the note louder and warmer, like cupping your hands around your mouth.</p>
+  <p>Try it. Tap the bars.</p>
+  <div class="lab">
+    <div class="marimba" id="marimba" role="group" aria-label="A small marimba you can play"></div>
+    <p class="now" id="mnow">Tap a bar. Try the white letters C, E, G one after the other.</p>
+  </div>
+  <p><strong>Marimba music</strong> sounds warm, round and bouncy. Each note starts with a soft "tok" and then fades quickly. The instrument comes from Africa and Central America. Today it is the national instrument of Guatemala. You may know one marimba sound already: the first iPhone's default ringtone was called "Marimba".</p>
+  <p>Because each note is short and clear, marimba music is great for a fast video. The notes hit the beat and get out of the way.</p>
+</section>
+
+<section>
+  <h2>The problem</h2>
+  <p>The video changes picture almost every second. We want the music to "hit" each change: a ding when the light bulb pops, a beat when the new site slides in.</p>
+  <p>How do people usually get music?</p>
+  <ul>
+    <li><strong>Download a song.</strong> But the song does not know where our picture changes are. The beats land in the wrong places.</li>
+    <li><strong>Play a real marimba and record it.</strong> But we have no marimba, no player and no microphone. Also, Claude cannot hear. It cannot listen and say "a bit softer, please".</li>
+  </ul>
+  <p class="key"><b>Root cause</b>We need sound that we can place to the exact millisecond, using only code, without ears.</p>
+  <p class="ask">So how can we make a marimba sound with only a computer?</p>
+  <p>To answer that, we first need to know what a sound is.</p>
+</section>
+
+<section>
+  <h2>What is sound?</h2>
+  <p>Throw a stone in a pond. Rings of ripples move out. Sound is like that, but in the air. Something shakes, and it pushes the air in tiny waves. The waves reach your ear, and you hear them.</p>
+  <p>A speaker makes these waves with a thin cone that moves in and out. The computer tells the cone where to be. It does this 44,100 times each second. Each "where to be" is one number.</p>
+  <p class="like"><b>Like</b>A flip book. Each page is one number. Flip 44,100 pages each second and you get a sound.</p>
+  <p class="key"><b>Key idea</b>A sound is just a long list of numbers. If we can write the list, we can make any sound. We do not need an instrument.</p>
+  <p class="ask">What list of numbers makes a marimba?</p>
+  <p>First, a quick look at the tools. Then we build one, step by step.</p>
+</section>
+
+<section>
+  <h2>The tools in the box</h2>
+  <p>The program is one Python file, about 100 lines. It uses only a few common tools. There is no music library, no sound samples and no music app.</p>
+  <table class="tools">
+    <tbody>
+      <tr><td>Python</td><td>The language the program is written in.</td></tr>
+      <tr><td>NumPy</td><td>Does maths on long lists of numbers in one go. It makes the waves (<code>np.sin</code>), the fades (<code>np.exp</code>) and the noise (<code>random.normal</code>).</td></tr>
+      <tr><td>SciPy</td><td>Two small jobs. Its filters (<code>scipy.signal</code>) shape the noise into a clap, a shaker or a whoosh. <code>scipy.io.wavfile</code> saves the numbers as a sound file.</td></tr>
+      <tr><td>ffmpeg</td><td>A free command-line tool. It sets the final loudness and glues the sound to the video.</td></tr>
+      <tr><td>Web Audio</td><td>Only on this page. Your browser has it built in. The buttons here use it to play the same recipe live.</td></tr>
+    </tbody>
+  </table>
+  <p>Every sound starts the same way: a list of times, one for each of the 44,100 numbers in a second.</p>
+  <div class="code"><span class="snip">Python · the list of times</span><pre><code>import numpy as np
+
+SR = 44100                              # numbers per second (&quot;sample rate&quot;)
+t = np.arange(int(1.2 * SR)) / SR       # 0.0, 0.0000227, 0.0000454, ... up to 1.2 s
+print(len(t))                           # 52920 numbers for 1.2 seconds</code></pre></div>
+</section>
+
+<section>
+  <h2>Build a marimba in four steps</h2>
+  <p>Each button adds one new thing. Listen to each one, and watch the picture of the sound change.</p>
+  <div class="lab" id="lab">
+    <div class="btns" role="group" aria-label="Build the marimba sound">
+      <button type="button" data-s="1">1 · Pure tone</button>
+      <button type="button" data-s="2">2 · + Overtones</button>
+      <button type="button" data-s="3">3 · + Fade</button>
+      <button type="button" data-s="4">4 · + Mallet "tok"</button>
+    </div>
+    <canvas id="pic" width="1200" height="240" aria-label="Picture of the sound"></canvas>
+    <p class="cap">The sound over 1.2 seconds. The wave is slowed down a lot so you can see it.</p>
+    <div class="layers" id="layers" aria-label="The ingredients of the sound">
+      <canvas id="l0" width="1200" height="92"></canvas><span>Main note · loud</span>
+      <canvas id="l1" width="1200" height="92"></canvas><span>+ 4× higher · quieter</span>
+      <canvas id="l2" width="1200" height="92"></canvas><span>+ 9× higher · very quiet</span>
+    </div>
+    <p class="cap">The three ingredients, each drawn the same size so you can see its shape. Added together, they make the picture above.</p>
+    <p class="now" id="now" aria-live="polite">Push button 1.</p>
+  </div>
+
+  <h3>Step 1: a pure tone</h3>
+  <p>The simplest sound is a smooth wave that goes up and down, again and again, like a swing. How fast it swings is the pitch. 523 swings each second is the note C.</p>
+  <p>It sounds like a microwave oven's beep. Not like wood.</p>
+  <div class="code"><span class="snip">Step 1 · a pure tone</span><pre><code>f = 523                                  # the note C: 523 swings each second
+sound = np.sin(2 * np.pi * f * t)        # one smooth wave, the same from start to end</code></pre></div>
+  <p class="ask">Why is a real marimba different from a beep?</p>
+  <p class="key"><b>Root cause</b>A wooden bar makes many notes at the same time, not one. And its sound does not stay the same: it is loud at the hit and then it gets quiet.</p>
+
+  <h3>Step 2: add overtones</h3>
+  <p>When the mallet hits the bar, the bar wobbles in more than one way at once. It sings its main note, plus some higher, quieter notes. These are overtones.</p>
+  <p class="like"><b>Like</b>A smoothie. Mostly banana (the main note), a bit of strawberry, and a tiny bit of mint. The mix gives the taste. The mix of overtones gives the "wooden" taste of the sound.</p>
+  <p>Marimba makers carve an arch under each bar to tune these overtones. Our recipe adds one overtone about 4 times higher (at about a quarter of the loudness) and one about 9 times higher (very quiet). See the three ingredients in the picture.</p>
+  <p>Now it is brighter. But it never stops. It sounds like an organ.</p>
+  <div class="code"><span class="snip">Step 2 · add two overtones</span><pre><code>sound = (      np.sin(2 * np.pi * f        * t)     # main note
+       + 0.28 * np.sin(2 * np.pi * f * 3.93 * t)     # about 4x higher, quieter
+       + 0.07 * np.sin(2 * np.pi * f * 9.2  * t))    # about 9x higher, very quiet</code></pre></div>
+
+  <h3>Step 3: add the fade</h3>
+  <p>After you hit a bar, it rings and then it slowly goes quiet, like a bouncing ball that bounces lower and lower.</p>
+  <p>So we make the wave smaller and smaller over time. The high overtones fade faster than the main note, just like on a real bar. After a moment, you hear mostly the warm main note.</p>
+  <div class="code"><span class="snip">Step 3 · add the fade</span><pre><code># np.exp(-t * k) starts at 1 and slides towards 0. A bigger k means a faster fade.
+sound = (      np.sin(2 * np.pi * f        * t) * np.exp(-t * 3.2)    # slow fade
+       + 0.28 * np.sin(2 * np.pi * f * 3.93 * t) * np.exp(-t * 13)     # faster
+       + 0.07 * np.sin(2 * np.pi * f * 9.2  * t) * np.exp(-t * 32))    # fastest</code></pre></div>
+
+  <h3>Step 4: add the mallet "tok"</h3>
+  <p>A real hit starts with a tiny "tok": the mallet touching the wood. It is not a note. It is a very short noise, like a spoon tapping a table.</p>
+  <p>So we add 4 thousandths of a second of random numbers at the very start. Your ear hears it as the hit. Now it sounds like a marimba.</p>
+  <div class="code"><span class="snip">Step 4 · add the "tok"</span><pre><code>tok = int(0.004 * SR)                                    # 4 ms = 176 numbers
+noise = np.random.normal(0, 0.15, tok)                   # random numbers = noise
+sound[:tok] += noise * np.linspace(1, 0, tok)            # loud at first, then gone</code></pre></div>
+
+  <details>
+    <summary>All four steps as one function (the real code)</summary>
+    <pre><code>def marimba(note, length=1.2):
+    t = np.arange(int(length * 44100)) / 44100      # the time of each number
+    f = 440 * 2 ** ((note - 69) / 12)                # note number to pitch (Hz)
+    s = (np.sin(2*np.pi*f*t)            * np.exp(-t*3.2)   # main note, slow fade
+       + 0.28*np.sin(2*np.pi*f*3.93*t)  * np.exp(-t*13)    # small overtone, faster fade
+       + 0.07*np.sin(2*np.pi*f*9.2*t)   * np.exp(-t*32))   # tiny overtone, fastest fade
+    tok = int(0.004 * 44100)                         # 4 ms
+    s[:tok] += np.random.normal(0, .15, tok) * np.linspace(1, 0, tok)
+    return s</code></pre>
+  </details>
+</section>
+
+<section>
+  <h2>From one note to music</h2>
+  <p class="ask">We can make one marimba note. How do we make a song?</p>
+  <p>A song is just the right notes at the right times. So the program needs two lists: which notes, and when.</p>
+  <ul>
+    <li><strong>Which note.</strong> Notes are like steps on a ladder. Each step up is about 6% higher. Twelve steps make the same note again, twice as high. The code turns a step number into a pitch.</li>
+    <li><strong>When.</strong> A clock ticks 120 times each minute, so one tick is half a second. Every sound sits on a tick, or halfway between two ticks.</li>
+    <li><strong>Which notes sound good together.</strong> Groups of notes that sound nice together are chords. The song loops four chords: C, G, A minor, F. Very many pop songs use these four, because they sound happy.</li>
+    <li><strong>Drums,</strong> made the same way with numbers. A kick drum is a low tone that drops fast. A clap is three quick bursts of noise. A shaker is a very short "tss".</li>
+  </ul>
+  <div class="lab">
+    <button type="button" class="play" id="groove">▶ Play the groove</button>
+    <span class="chord" id="chord" aria-live="polite"></span>
+    <div class="grid" id="grid" aria-label="One bar of the groove"></div>
+    <p class="cap">One bar, eight half-ticks. A filled box means "play here". The bar repeats with a new chord each time.</p>
+  </div>
+  <div class="code"><span class="snip">Python · which note</span><pre><code>def hz(note):                       # a step on the ladder -&gt; pitch
+    return 440 * 2 ** ((note - 69) / 12)
+
+hz(69)   # 440.0  (A)
+hz(72)   # 523.3  (C)
+hz(84)   # 1046.5 (the next C, twice as high)</code></pre></div>
+  <div class="code"><span class="snip">Python · when (simplified)</span><pre><code>song = np.zeros(16 * SR)                  # 16 seconds of silence to fill
+
+def add(sound, at):                       # put a sound into the song at a time (seconds)
+    i = int(at * SR)
+    song[i:i + len(sound)] += sound[:len(song) - i]
+
+BEAT = 0.5                                # 120 beats each minute
+CHORDS = {3.5: [72, 76, 79, 76, 72, 67, 76, 79],    # C
+          5.5: [71, 74, 79, 74, 71, 67, 74, 79],    # G
+          7.5: [72, 76, 81, 76, 72, 69, 76, 81],    # A minor
+          9.5: [69, 72, 77, 72, 69, 65, 72, 77]}    # F
+for start, notes in CHORDS.items():
+    for k, n in enumerate(notes):
+        add(marimba(n), start + k * BEAT / 2)       # 8 notes, half a beat apart</code></pre></div>
+  <div class="code"><span class="snip">Python · drums from numbers</span><pre><code>def kick():                               # a low tone that drops fast in pitch
+    t = np.arange(int(0.35 * SR)) / SR
+    pitch = 48 + 110 * np.exp(-t * 38)    # 158 Hz falling to 48 Hz
+    return np.sin(2 * np.pi * np.cumsum(pitch) / SR) * np.exp(-t * 9)
+
+def shaker():                             # a very short, very high &quot;tss&quot;
+    t = np.arange(int(0.06 * SR)) / SR
+    tss = np.random.normal(0, 1, len(t)) * np.exp(-t * 70)
+    return highpass(tss, 6000)            # SciPy filter: keep only the high hiss</code></pre></div>
+</section>
+
+<section>
+  <h2>Match the music to the video</h2>
+  <p>This is the part a downloaded song cannot do. The video was finished first. Then each sound got a time, in seconds, from the video. These are the dots under the video at the top.</p>
+  <table class="cue">
+    <thead><tr><th>Time</th><th>On screen</th><th>Sound</th></tr></thead>
+    <tbody id="cuetable"></tbody>
+  </table>
+  <p>Because the times are just numbers, changes are easy. When the phone part of the video got one second longer, we added one more bar of music, moved the last chord one second later, and ran the program again.</p>
+  <div class="code"><span class="snip">Python · sounds at video times (simplified)</span><pre><code>add(glock(84), 2.5)                       # light bulb: bell &quot;ding&quot;
+add(whoosh(), 4.18)                       # first post pushed away
+add(whoosh(), 5.18)                       # second push
+add(slide_whistle(1300, 420), 6.15)       # down the rope
+add(glock(88), 8.1);  add(glock(91), 9.1) # filter taps
+add(big_c_chord(), 13.5)                  # end card</code></pre></div>
+</section>
+
+<section>
+  <h2>Mix it and save it</h2>
+  <ol>
+    <li><strong>Add everything up</strong>, one list for the left speaker and one for the right.</li>
+    <li><strong>Round off the loudest bits</strong>, so nothing crackles.</li>
+    <li><strong>Set the volume</strong> to a normal level for online video, and save it as a sound file.</li>
+    <li><strong>Glue it to the video</strong> with a tool called ffmpeg.</li>
+  </ol>
+  <div class="code"><span class="snip">Python · mix and save</span><pre><code>from scipy.io import wavfile
+
+mix = np.tanh(song * 1.1) / np.tanh(1.1)          # round off the loudest bits
+mix = mix * 0.89 / np.max(np.abs(mix))            # loudest point just under the top
+wavfile.write(&quot;music.wav&quot;, SR, (mix * 32767).astype(np.int16))   # numbers -&gt; sound file</code></pre></div>
+  <div class="code"><span class="snip">Shell · glue sound to video</span><pre><code>ffmpeg -framerate 30 -i frames/%04d.jpg -i music.wav \
+       -af loudnorm=I=-14 -c:v libx264 -c:a aac launch.mp4</code></pre></div>
+</section>
+
+<section>
+  <h2>The chain of questions</h2>
+  <ol class="chain">
+    <li>We want music that hits each moment of the video. A downloaded song or a recording cannot do that from code.</li>
+    <li>What is sound? A long list of numbers that moves a speaker.</li>
+    <li>The simplest list is a smooth wave. It sounds like a beep.</li>
+    <li>Why? A wooden bar sings many notes at once, and it fades. So we add overtones and a fade.</li>
+    <li>Add a tiny "tok" for the mallet. Now it is a marimba.</li>
+    <li>Put notes on a ticking clock, in happy chords, with drums. Now it is music.</li>
+    <li>Give each sound a time from the video. Now it fits.</li>
+  </ol>
+  <p>Back to the <a href="/worklog/notes-rr2-dev-redesign/">redesign post</a>.</p>
+</section>
+
+<p class="small"><em>This note was generated in a Claude session (Opus 5.5). It follows about 75% of the ASD-STE100 rules: short sentences, active voice, simple words.</em></p>
+
+</div>
+
+<script>
+(function () {
+  var CUES = [
+    [0.2, 'The figure thinks', 'Soft tick-tock and slow notes'],
+    [2.5, 'Light bulb', 'A bright bell "ding"'],
+    [2.9, '"Oh right!"', 'Quick notes running up'],
+    [3.5, 'Slide to the new site', 'The beat starts'],
+    [4.2, 'A post is pushed away', 'Whoosh'],
+    [5.2, 'Another push', 'Whoosh'],
+    [6.2, 'Down the rope', 'Slide whistle going down'],
+    [8.1, 'Worklog filter', 'Small bell tap'],
+    [9.1, 'Learning filter', 'Small bell tap'],
+    [10.2, 'Dark mode', 'Bell tap'],
+    [13.5, 'End card', 'Big happy chord, then a fade']
+  ];
+  var DUR = 16;
+  var vid = document.getElementById('vid'), cues = document.getElementById('cues'), done = document.getElementById('done'), txt = document.getElementById('cuetxt');
+  var dots = CUES.map(function (c, i) {
+    var b = document.createElement('button'); b.type = 'button'; b.style.left = (c[0] / DUR * 100) + '%';
+    b.setAttribute('aria-label', c[0] + ' seconds: ' + c[1] + ', ' + c[2]);
+    b.addEventListener('click', function () { vid.currentTime = Math.max(0, c[0] - 0.4); vid.play(); show(i); });
+    b.addEventListener('mouseenter', function () { show(i); });
+    cues.appendChild(b); return b;
+  });
+  function show(i) { dots.forEach(function (d, k) { d.classList.toggle('on', k === i); }); var c = CUES[i]; txt.innerHTML = '<b>' + c[0] + ' s</b> · ' + c[1] + ' → ' + c[2]; }
+  vid.addEventListener('timeupdate', function () {
+    var t = vid.currentTime; done.style.width = Math.min(100, t / DUR * 100) + '%';
+    var cur = -1; CUES.forEach(function (c, i) { if (t >= c[0] - 0.05) cur = i; });
+    if (cur >= 0 && !dots[cur].classList.contains('on')) show(cur);
+  });
+  var tb = document.getElementById('cuetable');
+  CUES.forEach(function (c) { var r = document.createElement('tr'); r.innerHTML = '<td>' + c[0] + ' s</td><td>' + c[1] + '</td><td>' + c[2] + '</td>'; tb.appendChild(r); });
+
+  // ---- audio ----
+  var ac = null, master = null, noiseBuf = null;
+  function ctx() {
+    if (!ac) { ac = new (window.AudioContext || window.webkitAudioContext)(); master = ac.createGain(); master.gain.value = 0.7; master.connect(ac.destination); }
+    if (ac.state === 'suspended') ac.resume();
+    return ac;
+  }
+  function hz(n) { return 440 * Math.pow(2, (n - 69) / 12); }
+  function noise() {
+    if (!noiseBuf) { noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate); var d = noiseBuf.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+    var s = ac.createBufferSource(); s.buffer = noiseBuf; return s;
+  }
+  function partial(t, f, g, decay, dur, out) {
+    var o = ac.createOscillator(), v = ac.createGain();
+    o.frequency.value = f;
+    v.gain.setValueAtTime(0, t); v.gain.linearRampToValueAtTime(g, t + 0.002);
+    if (decay) v.gain.setTargetAtTime(0, t + 0.002, 1 / decay);
+    else { v.gain.setValueAtTime(g, t + dur - 0.05); v.gain.linearRampToValueAtTime(0, t + dur); }
+    o.connect(v); v.connect(out); o.start(t); o.stop(t + dur + 0.05);
+  }
+  function strike(stage, note, t, vol, dur, out) {
+    var f = hz(note), fade = stage >= 3;
+    partial(t, f, vol, fade ? 3.2 : 0, dur, out);
+    if (stage >= 2) { partial(t, f * 3.93, vol * .28, fade ? 13 : 0, dur, out); partial(t, f * 9.2, vol * .07, fade ? 32 : 0, dur, out); }
+    if (stage >= 4) { var n = noise(), g = ac.createGain(); g.gain.setValueAtTime(vol * .6, t); g.gain.linearRampToValueAtTime(0, t + 0.004); n.connect(g); g.connect(out); n.start(t); n.stop(t + 0.01); }
+  }
+
+  // ---- the marimba you can play ----
+  var BARS = [[72, 'C'], [74, 'D'], [76, 'E'], [77, 'F'], [79, 'G'], [81, 'A'], [83, 'B'], [84, 'C']];
+  var mar = document.getElementById('marimba');
+  BARS.forEach(function (b, i) {
+    var btn = document.createElement('button'); btn.type = 'button'; btn.setAttribute('aria-label', 'Play ' + b[1]);
+    var h = 150 - i * 11, tube = 70 - i * 7;
+    btn.innerHTML = '<span class="bar" style="height:' + h + 'px"></span><span class="tube" style="height:' + tube + 'px"></span><span class="nm">' + b[1] + '</span>';
+    btn.addEventListener('pointerdown', function (e) { e.preventDefault(); hit(btn, b); });
+    btn.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hit(btn, b); } });
+    mar.appendChild(btn);
+  });
+  function hit(btn, b) {
+    ctx(); strike(4, b[0], ac.currentTime + 0.01, .38, 1.4, master);
+    btn.classList.remove('hit'); void btn.offsetWidth; btn.classList.add('hit');
+    document.getElementById('mnow').textContent = b[1] + ' · ' + Math.round(hz(b[0])) + ' wobbles each second';
+  }
+
+  // ---- pictures of the sound ----
+  function col(name, fb) { var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim(); return v || fb; }
+  var SPAN = 1.2, CYC = 9; // slowed down: 9 main swings across the picture
+  function wave(stage, x, part) {
+    var t = x * SPAN, fade = stage >= 3, ph = 2 * Math.PI * CYC * x, v = 0;
+    if (part === undefined || part === 0) v += Math.sin(ph) * (fade ? Math.exp(-t * 3.2) : 1);
+    if (stage >= 2 && (part === undefined || part === 1)) v += .28 * Math.sin(ph * 3.93) * (fade ? Math.exp(-t * 13) : 1);
+    if (stage >= 2 && (part === undefined || part === 2)) v += .07 * Math.sin(ph * 9.2) * (fade ? Math.exp(-t * 32) : 1);
+    if (stage >= 4 && part === undefined && x < 0.025) v += (Math.random() * 2 - 1) * 1.1 * (1 - x / 0.025);
+    return v;
+  }
+  function plot(cv, fn, scale, color, head) {
+    var x = cv.getContext('2d'), W = cv.width, H = cv.height;
+    x.clearRect(0, 0, W, H);
+    x.strokeStyle = col('--hair', '#e2e5ea'); x.lineWidth = 2; x.beginPath(); x.moveTo(0, H / 2); x.lineTo(W, H / 2); x.stroke();
+    if (!fn) return;
+    x.strokeStyle = color; x.lineWidth = 3; x.lineJoin = 'round'; x.beginPath();
+    for (var i = 0; i <= W; i++) { var y = H / 2 - fn(i / W) * scale * (H / 2 - 8); if (i) x.lineTo(i, y); else x.moveTo(0, y); }
+    x.stroke();
+    if (head !== undefined) { x.strokeStyle = col('--rust', '#a8452c'); x.lineWidth = 3; x.beginPath(); x.moveTo(head * W, 0); x.lineTo(head * W, H); x.stroke(); }
+  }
+  var stage = 0, raf = 0, t0 = 0;
+  function drawAll(head) {
+    var blue = col('--ink-blue', '#2f6690');
+    plot(document.getElementById('pic'), stage ? function (u) { return wave(stage, u); } : null, 1 / 1.4, blue, head);
+    [0, 1, 2].forEach(function (p) {
+      var on = stage >= (p ? 2 : 1), cv = document.getElementById('l' + p);
+      cv.classList.toggle('off', !on); cv.nextElementSibling.classList.toggle('off', !on);
+      plot(cv, on ? function (u) { return wave(stage, u, p); } : function (u) { return wave(2, u, p); }, [0.9, 0.9 / 0.28, 0.9 / 0.07][p], blue);
+    });
+  }
+  drawAll();
+  var names = {
+    1: 'A pure tone. A smooth wave that never changes. It sounds like a beep.',
+    2: 'Three waves added together. Brighter, but it never stops.',
+    3: 'Every wave gets smaller over time. The fast ones shrink first.',
+    4: 'A tiny burst of noise at the start: the "tok". This is the marimba from the video.'
+  };
+  var btns = document.querySelectorAll('#lab [data-s]');
+  Array.prototype.forEach.call(btns, function (b) {
+    b.addEventListener('click', function () {
+      stage = +b.dataset.s; ctx();
+      Array.prototype.forEach.call(btns, function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
+      strike(stage, 72, ac.currentTime + 0.03, .4, SPAN, master);
+      document.getElementById('now').textContent = names[stage];
+      t0 = performance.now(); cancelAnimationFrame(raf);
+      (function loop() { var u = (performance.now() - t0) / (SPAN * 1000); if (u >= 1) { drawAll(); return; } drawAll(u); raf = requestAnimationFrame(loop); })();
+    });
+  });
+  var mq = window.matchMedia && matchMedia('(prefers-color-scheme: dark)');
+  if (mq && mq.addEventListener) mq.addEventListener('change', function () { drawAll(); });
+  new MutationObserver(function () { drawAll(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  // ---- the groove ----
+  var ROWS = [['Marimba', [1,1,1,1,1,1,1,1]], ['Bass', [1,0,0,0,1,0,0,0]], ['Kick', [1,0,0,0,1,0,0,0]], ['Clap', [0,0,1,0,0,0,1,0]], ['Shaker', [1,1,1,1,1,1,1,1]]];
+  var grid = document.getElementById('grid'), cells = [];
+  ROWS.forEach(function (r) {
+    var l = document.createElement('span'); l.className = 'rl'; l.textContent = r[0]; grid.appendChild(l);
+    r[1].forEach(function (on, c) { var i = document.createElement('i'); if (on) i.className = 'x'; i.dataset.c = c; grid.appendChild(i); cells.push(i); });
+  });
+  var B = 0.5, CH = [['C', 48, [72, 76, 79, 76, 72, 67, 76, 79]], ['G', 43, [71, 74, 79, 74, 71, 67, 74, 79]], ['Am', 45, [72, 76, 81, 76, 72, 69, 76, 81]], ['F', 41, [69, 72, 77, 72, 69, 65, 72, 77]]];
+  function kick(t, out) {
+    var o = ac.createOscillator(), v = ac.createGain();
+    o.frequency.setValueAtTime(158, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.12);
+    v.gain.setValueAtTime(.9, t); v.gain.setTargetAtTime(0, t, 1 / 9);
+    o.connect(v); v.connect(out); o.start(t); o.stop(t + 0.4);
+  }
+  function hiss(t, out, type, freq, q, vol, len) {
+    var n = noise(), f = ac.createBiquadFilter(), v = ac.createGain();
+    f.type = type; f.frequency.value = freq; f.Q.value = q;
+    v.gain.setValueAtTime(vol, t); v.gain.setTargetAtTime(0, t, len);
+    n.connect(f); f.connect(v); v.connect(out); n.start(t); n.stop(t + len * 8);
+  }
+  function clap(t, out) { [0, .011, .022].forEach(function (d) { hiss(t + d, out, 'bandpass', 1600, 1.1, .7, .012); }); hiss(t + .022, out, 'bandpass', 1600, 1.1, .35, .045); }
+  var gBtn = document.getElementById('groove'), gOut = null, gStart = 0, gRaf = 0, chordEl = document.getElementById('chord');
+  function lightGrid(c) { cells.forEach(function (i) { var on = +i.dataset.c === c; i.classList.toggle('col', on); i.classList.toggle('lit', on && i.classList.contains('x')); }); }
+  function stopGroove() { if (gOut) { gOut.disconnect(); gOut = null; } cancelAnimationFrame(gRaf); lightGrid(-1); chordEl.textContent = ''; gBtn.setAttribute('aria-pressed', 'false'); gBtn.textContent = '▶ Play the groove'; }
+  gBtn.addEventListener('click', function () {
+    if (gOut) { stopGroove(); return; }
+    ctx(); gOut = ac.createGain(); gOut.gain.value = .8; gOut.connect(master);
+    var out = gOut; gStart = ac.currentTime + 0.1;
+    CH.forEach(function (ch, bi) {
+      var tb = gStart + bi * 4 * B;
+      ch[2].forEach(function (n, k) { strike(4, n, tb + k * B / 2, k % 2 ? .16 : .22, .9, out); });
+      strike(4, ch[1], tb, .4, 1.6, out); strike(4, ch[1], tb + 2 * B, .3, 1.0, out);
+      for (var b = 0; b < 4; b++) {
+        var t = tb + b * B;
+        if (b % 2 === 0) kick(t, out); else clap(t, out);
+        hiss(t + B / 2, out, 'highpass', 6000, .7, .12, .012); hiss(t, out, 'highpass', 6000, .7, .06, .012);
+      }
+    });
+    gBtn.setAttribute('aria-pressed', 'true'); gBtn.textContent = '■ Stop';
+    (function loop() {
+      if (gOut !== out) return;
+      var e = ac.currentTime - gStart;
+      if (e >= 8) { stopGroove(); return; }
+      if (e >= 0) { var step = Math.floor(e / (B / 2)); lightGrid(step % 8); chordEl.textContent = CH[Math.floor(step / 8)][0]; }
+      gRaf = requestAnimationFrame(loop);
+    })();
+  });
+})();
+</script>
+</body>
+</html>
