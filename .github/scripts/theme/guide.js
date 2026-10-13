@@ -21,7 +21,7 @@
   }
 
   // ---- Talking ----
-  function hide() { bub.classList.remove('show'); }
+  function hide() { bub.classList.remove('show', 'offer'); }
   function room() { return innerWidth - (M.getBoundingClientRect().left + parseFloat(W.style.left || 0)) - 76; }
   function fit() {
     var beside = bub.classList.contains('side') || W.classList.contains('stand') ||
@@ -31,24 +31,28 @@
     if (r.left < 12) shift = 12 - r.left; else if (r.right > innerWidth - 12) shift = innerWidth - 12 - r.right;
     bub.style.setProperty('--bs', shift + 'px');
   }
-  // acts: [label, onClick] for a button, or [label, null, href] for a link
+  // acts: [label, onClick] for a button, or [label, null, href] for a link; an optional 4th item is a class
   function say(text, list, ms) {
     txt.textContent = text; acts.textContent = '';
     (list || []).forEach(function (a) {
       var el = document.createElement(a[2] ? 'a' : 'button');
       if (a[2]) el.href = a[2]; else el.type = 'button';
-      el.textContent = a[0];
+      el.textContent = a[0]; if (a[3]) el.className = a[3];
       if (a[1]) el.onclick = function (e) { e.stopPropagation(); a[1](); };
       acts.appendChild(el);
     });
     bub.classList.toggle('has-acts', !!(list && list.length));
-    bub.style.setProperty('--bs', '0px'); bub.classList.add('show'); fit();
+    bub.classList.remove('offer'); bub.style.setProperty('--bs', '0px'); bub.classList.add('show'); fit();
     clearTimeout(ht); ht = 0; hold = 0; if (ms) ht = setTimeout(hide, ms);
   }
   // Keep a timed bubble open while the pointer is on it, then give it a moment after leaving.
   var hold = 0;
   bub.addEventListener('mouseenter', function () { if (ht) { hold = 1; clearTimeout(ht); } });
   bub.addEventListener('mouseleave', function () { if (hold) { hold = 0; ht = setTimeout(hide, 2500); } });
+  // A tap anywhere outside the guide and its bubble closes a menu bubble.
+  document.addEventListener('pointerdown', function (e) {
+    if (bub.classList.contains('show') && bub.classList.contains('has-acts') && !bub.contains(e.target) && !B.contains(e.target)) hide();
+  }, true);
   function play(c) { B.classList.remove(c); void B.offsetWidth; B.classList.add(c); setTimeout(function () { B.classList.remove(c); }, 1400); }
   function pose(p) { W.classList.remove('stand', 'hang', 'zipping'); if (p) W.classList.add(p); }
   function toTop() { scrollTo({ top: 0, behavior: still ? 'auto' : 'smooth' }); hide(); }
@@ -104,6 +108,7 @@
     }
     function tick() {
       if (mode !== 'live') return;
+      if (bub.classList.contains('offer') && Math.abs(scrollY - offerY) > 40) hide();   // scrolling away closes the offer
       if (scrollY < lastY - 4 && hanging) hide(); lastY = scrollY;
       tgt = aim(); var h = tgt > 0;
       if (h !== hanging) {
@@ -125,13 +130,17 @@
       if (window.nrFilter) window.nrFilter(f); measure(); say(line, [], 2600);
       var c = document.querySelector('.nr-chips'); if (c) c.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
     }
+    var offerY = 0;
+    function declined() { try { return !!sessionStorage.getItem('nr-nothanks'); } catch (e) { return false; } }
     function offer() {
       var list = [["What's new", function () { window.nrCarousel.next(); say('Fresh off the press.', [], 2200); }]];
       document.querySelectorAll('.nr-chips [data-sec]').forEach(function (c) {
         var f = c.dataset.f, name = c.firstChild.textContent.trim();
         list.push([name, function () { goTo(f, name + ', newest first.'); }]);
       });
-      say('Want a hand finding something?', list, 7000);   // closes by itself; hovering keeps it open
+      list.push(['No thanks', function () { hide(); try { sessionStorage.setItem('nr-nothanks', '1'); } catch (e) {} }, null, 'quiet']);
+      say('Want a hand finding something?', list, 4000);   // closes by itself; hovering keeps it open
+      bub.classList.add('offer'); offerY = scrollY;
     }
     // If the visitor gets going before the intro ends, jump straight to the seat.
     function skip() {
@@ -155,7 +164,7 @@
      [3300, function () { say('This is where my AI agents keep notes on what we build.', [], 0); }],
      [6300, function () { if (still) { pose(null); mode = 'live'; place(sx, 0); return; } say('Wheee!', [], 1300); zipDown(); }],
      [8600, function () { window.nrCarousel.next(); say("Out with the old. Here's another fresh one.", [], 0); }],
-     [11200, function () { intro = false; window.nrCarousel.start(); offer(); }]
+     [11200, function () { intro = false; window.nrCarousel.start(); if (declined()) hide(); else offer(); }]
     ].forEach(function (x) { T.push(setTimeout(x[1], x[0])); });
 
     addEventListener('scroll', function () { if (intro && scrollY > 120) skip(); tick(); }, { passive: true });
