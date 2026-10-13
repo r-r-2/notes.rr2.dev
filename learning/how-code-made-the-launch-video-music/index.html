@@ -80,6 +80,22 @@
   .mm table.tools { width: 100%; border-collapse: collapse; font-size: .92rem; margin: .6rem 0; }
   .mm table.tools td { padding: .5rem .5rem; border-bottom: 1px solid var(--hair); vertical-align: top; }
   .mm table.tools td:first-child { white-space: nowrap; font-weight: 600; }
+  .mm .ed { margin: 1rem 0; border-radius: 10px; overflow: hidden; border: 1px solid #2a2f37; background: #1b1f24; }
+  .mm .ed-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #23282f; color: #aab2bd; font: 500 .8rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .mm .ed-bar .dots { display: flex; gap: 6px; margin-right: 6px; }
+  .mm .ed-bar .dots i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+  .mm .ed-bar .dots i:nth-child(2) { background: #febc2e; } .mm .ed-bar .dots i:nth-child(3) { background: #28c840; }
+  .mm .ed-bar .sp { flex: 1; }
+  .mm .ed-bar a, .mm .ed-bar button { font: inherit; color: #d6dde6; background: #313842; border: 0; border-radius: 6px; padding: 5px 9px; cursor: pointer; text-decoration: none; }
+  .mm .ed-bar a:hover, .mm .ed-bar button:hover { background: #3d4652; }
+  .mm .ed pre { margin: 0; border: 0; border-radius: 0; background: none; color: #d6dde6; max-height: 520px; overflow: auto; padding: 12px 0; font-size: .78rem; line-height: 1.55; counter-reset: ln; }
+  .mm .ed code { display: block; min-width: max-content; }
+  .mm .ed .l { display: block; padding: 0 16px 0 0; }
+  .mm .ed .l::before { counter-increment: ln; content: counter(ln); display: inline-block; width: 3.2em; padding-right: 1em; text-align: right; color: #5c6570; user-select: none; }
+  .mm .ed .k { color: #ff7ab2; } .mm .ed .s { color: #ffb86b; } .mm .ed .c { color: #7f8a96; font-style: italic; } .mm .ed .n { color: #9be3a5; } .mm .ed .f { color: #7cc4ff; }
+  .mm details.full > summary { list-style: none; display: inline-flex; align-items: center; gap: .5rem; padding: .5rem .95rem; border-radius: 999px; border: 1px solid var(--hair); background: var(--panel); }
+  .mm details.full > summary::-webkit-details-marker { display: none; }
+  .mm details.full[open] > summary .op { display: none; } .mm details.full:not([open]) > summary .cl { display: none; }
   .mm details summary { cursor: pointer; color: var(--ink-blue); font-weight: 600; }
   @media (prefers-reduced-motion: reduce) { .mm .marimba button.hit .bar { animation: none; } }
 </style>
@@ -150,7 +166,7 @@
 
 <section>
   <h2>The tools in the box</h2>
-  <p>The program is one Python file, about 100 lines. It uses only a few common tools. There is no music library, no sound samples and no music app.</p>
+  <p>The program is one Python file, about 100 lines. You can <a href="#full-code">read all of it</a> near the end of this page. It uses only a few common tools. There is no music library, no sound samples and no music app.</p>
   <table class="tools">
     <tbody>
       <tr><td>Python</td><td>The language the program is written in.</td></tr>
@@ -313,6 +329,122 @@ mix = mix * 0.89 / np.max(np.abs(mix))            # loudest point just under the
 wavfile.write(&quot;music.wav&quot;, SR, (mix * 32767).astype(np.int16))   # numbers -&gt; sound file</code></pre></div>
   <div class="code"><span class="snip">Shell · glue sound to video</span><pre><code>ffmpeg -framerate 30 -i frames/%04d.jpg -i music.wav \
        -af loudnorm=I=-14 -c:v libx264 -c:a aac launch.mp4</code></pre></div>
+</section>
+
+<section>
+  <h2 id="full-code">The full code</h2>
+  <p>Here is the whole soundtrack program: 105 lines, including comments. The marimba-like note is only 8 of them. The rest makes the drums and bells, puts every sound at its time, and mixes it all. Run it with Python, NumPy and SciPy, and it writes the exact track from the video.</p>
+  <details class="full">
+    <summary><span class="op">▸ Open the code</span><span class="cl">▾ Hide the code</span></summary>
+    <div class="ed">
+      <div class="ed-bar"><span class="dots"><i></i><i></i><i></i></span><span>soundtrack.py</span><span class="sp"></span><button type="button" id="copycode">Copy</button><a href="soundtrack.py" download>Download</a></div>
+      <pre><code id="fullcode">&quot;&quot;&quot;The 16-second soundtrack of the notes.rr2.dev launch video, made only from numbers.
+120 BPM. 0-2.5 s thinking (tick-tock), 2.5 s light-bulb ding, 3.5 s the beat starts,
+whooshes for the pushed posts, a slide whistle down the rope, small bells for the
+filters and dark mode, and a big C chord under the end card at 13.5 s.
+Needs: numpy, scipy. Writes soundtrack.wav.&quot;&quot;&quot;
+import numpy as np
+from scipy.signal import butter, sosfilt
+from scipy.io import wavfile
+
+SR, DUR, BPM = 44100, 16.0, 120
+BEAT = 60 / BPM
+N = int(SR * DUR)
+L = np.zeros(N); R = np.zeros(N)
+rng = np.random.default_rng(7)
+
+def add(sig, t, gain=1.0, pan=0.0):
+    i = int(t * SR); j = min(N, i + len(sig))
+    if i &gt;= N: return
+    l = np.cos((pan + 1) * np.pi / 4); r = np.sin((pan + 1) * np.pi / 4)
+    L[i:j] += sig[: j - i] * gain * l * 1.414; R[i:j] += sig[: j - i] * gain * r * 1.414
+
+def tt(sec): return np.arange(int(sec * SR)) / SR
+def hz(note): return 440 * 2 ** ((note - 69) / 12)
+def bp(x, lo, hi): return sosfilt(butter(2, [lo, hi], btype=&quot;band&quot;, fs=SR, output=&quot;sos&quot;), x)
+def hp(x, f): return sosfilt(butter(2, f, btype=&quot;high&quot;, fs=SR, output=&quot;sos&quot;), x)
+
+def marimba(note, length=1.2, bright=1.0):   # the marimba-like note
+    t = tt(length); f = hz(note)
+    s = (np.sin(2 * np.pi * f * t) * np.exp(-t * 3.2)
+         + 0.28 * bright * np.sin(2 * np.pi * f * 3.93 * t) * np.exp(-t * 13)
+         + 0.07 * bright * np.sin(2 * np.pi * f * 9.2 * t) * np.exp(-t * 32))
+    s *= np.minimum(1, t / 0.002)
+    s[: int(0.004 * SR)] += rng.normal(0, 0.15, int(0.004 * SR)) * np.linspace(1, 0, int(0.004 * SR))
+    return s
+
+def glock(note, length=2.5):
+    t = tt(length); f = hz(note)
+    return (np.sin(2 * np.pi * f * t) + 0.35 * np.sin(2 * np.pi * f * 2.76 * t) * np.exp(-t * 4)) * np.exp(-t * 1.6) * np.minimum(1, t / 0.001)
+
+def kick():
+    t = tt(0.35); f = 48 + 110 * np.exp(-t * 38)
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 9)
+
+def clap():
+    out = np.zeros(int(0.25 * SR))
+    for k, off in enumerate((0, 0.011, 0.022)):
+        b = rng.normal(0, 1, int(0.009 * SR)) * np.linspace(1, 0.3, int(0.009 * SR)); i = int(off * SR)
+        out[i:i + len(b)] += b * (0.8 if k &lt; 2 else 1)
+    tail = rng.normal(0, 1, len(out)) * np.exp(-tt(0.25) * 22); out[int(0.022 * SR):] += 0.6 * tail[: len(out) - int(0.022 * SR)]
+    return bp(out, 900, 2600)
+
+def shaker(): return hp(rng.normal(0, 1, int(0.06 * SR)) * np.exp(-tt(0.06) * 70), 6000)
+
+def whoosh(length=0.35):
+    t = tt(length); env = np.sin(np.pi * t / length) ** 2
+    return bp(rng.normal(0, 1, len(t)), 500, 3500) * env
+
+def slide_whistle(t0, t1, f0, f1):
+    t = tt(t1 - t0); f = np.geomspace(f0, f1, len(t)) * (1 + 0.012 * np.sin(2 * np.pi * 6 * t))
+    env = np.minimum(1, t / 0.06) * np.minimum(1, (t[-1] - t) / 0.12)
+    return (np.sin(2 * np.pi * np.cumsum(f) / SR) + 0.15 * np.sin(4 * np.pi * np.cumsum(f) / SR)) * env
+
+def wood(pitch=1.0):
+    t = tt(0.12); f = 820 * pitch
+    return (np.sin(2*np.pi*f*t) + 0.4*np.sin(2*np.pi*f*2.7*t)) * np.exp(-t*55)
+
+C4, D4, E4, F4, G4, A4, B4, C5, D5, E5, G5, A5, C6, E6, G6 = 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 79, 81, 84, 88, 91
+# 0-2.5 s: thinking. Tick-tock under a few curious notes.
+for k in range(5): add(wood(1.0 if k % 2 == 0 else 0.75), 0.25 + k * BEAT, 0.28, 0.3 if k % 2 else -0.3)
+for t, n in ((0.5, E5), (1.0, D5), (1.5, F4 + 12), (2.0, E5)): add(marimba(n, 0.9, 0.5), t, 0.2, 0.15)
+# 2.5 s: the idea. Bright ding with a sparkle.
+add(glock(C6, 2.0), 2.5, 0.32, 0.1); add(glock(G6, 1.6), 2.56, 0.16, 0.35); add(glock(E6, 1.4), 2.62, 0.12, -0.3)
+# 2.75-3.5 s: a quick run up into the drop
+for k, n in enumerate([C5, D5, E5, G5, A5, C6]): add(marimba(n, 0.5), 2.94 + k * 0.09, 0.22 + 0.02 * k, -0.3 + 0.12 * k)
+# 3.5-11.5 s: the groove, four bars
+CH = {3.5: (48, [C5, E5, G5, E5, C5, G4, E5, G5]), 5.5: (43, [B4, D5, G5, D5, B4, G4, D5, G5]),
+      7.5: (45, [C5, E5, A5, E5, C5, A4, E5, A5]), 9.5: (41, [A4, C5, F4 + 12, C5, A4, F4, C5, F4 + 12]),
+      11.5: (43, [B4, D5, G5, D5, B4, D5, G5, B4 + 12])}
+for t0, (bass, arp) in CH.items():
+    for k, n in enumerate(arp):
+        add(marimba(n, 0.9), t0 + k * BEAT / 2, 0.30 if k % 2 == 0 else 0.22, -0.35 if k % 2 else 0.35)
+    add(marimba(bass, 1.6, 0.4), t0, 0.55); add(marimba(bass, 1.0, 0.4), t0 + 2 * BEAT, 0.4)
+    for b in range(4):
+        t = t0 + b * BEAT
+        if b in (0, 2): add(kick(), t, 0.85)
+        if b in (1, 3): add(clap(), t, 0.42, 0.1)
+        add(shaker(), t + BEAT / 2, 0.10, -0.3); add(shaker(), t, 0.05, 0.3)
+add(whoosh(0.5), 3.3, 0.22, 0.5)                                   # the wipe
+for t in (4.18, 5.18): add(whoosh(), t, 0.30, -0.4)               # posts pushed away
+add(slide_whistle(0, 1.5, 1300, 420), 6.15, 0.14, 0.15)           # down the rope
+for t, n in ((8.1, E6), (9.1, G6)): add(glock(n, 0.8), t, 0.12, 0.3)   # chip taps
+add(glock(C6, 0.8), 10.2, 0.14, -0.3)                              # dark mode
+add(whoosh(0.3), 10.87, 0.18, 0.4)                                 # cut to the phone
+# 13.5 s: end card
+for k, n in enumerate([48, C4, E4, G4, C5, E5]): add(marimba(n, 2.6, 0.7), 13.5 + k * 0.035, 0.36, -0.3 + 0.12 * k)
+add(glock(C6, 2.5), 13.58, 0.22, 0.2); add(glock(G5, 2.2), 13.95, 0.12, -0.2)
+
+mix = np.stack([L, R], 1)
+fade = np.ones(N); f0 = int(15.0 * SR); fade[f0:] = np.linspace(1, 0, N - f0) ** 1.5
+fade[: int(0.01 * SR)] = np.linspace(0, 1, int(0.01 * SR))
+mix *= fade[:, None]
+mix = np.tanh(mix * 1.1) / np.tanh(1.1)
+mix *= 0.89 / np.max(np.abs(mix))
+wavfile.write(&quot;soundtrack.wav&quot;, SR, (mix * 32767).astype(np.int16))
+print(&quot;ok&quot;)</code></pre>
+    </div>
+  </details>
 </section>
 
 <section>
@@ -742,5 +874,31 @@ setTimeout(function () { bub.classList.remove('side'); }, 3600);
 }
 })();</script>
 <!-- nr:bottom:end -->
+<script>
+(function () {
+  var el = document.getElementById('fullcode'); if (!el) return;
+  var src = el.textContent, inDoc = false;
+  function esc(t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  var RE = /(#.*$)|("""|"[^"]*"|'[^']*')|\b(def|return|for|in|if|else|import|from|as|and|or|not|lambda|None|True|False)\b|\b(\d+(?:\.\d+)?)\b|\b([A-Za-z_]\w*)(?=\()/g;
+  function line(t) {
+    var out = '', last = 0, m;
+    if (inDoc) { var e = t.indexOf('"""'); if (e < 0) return '<span class="s">' + esc(t) + '</span>'; out = '<span class="s">' + esc(t.slice(0, e + 3)) + '</span>'; last = e + 3; inDoc = false; }
+    RE.lastIndex = last;
+    while ((m = RE.exec(t))) {
+      out += esc(t.slice(last, m.index));
+      if (m[2] === '"""') { var e2 = t.indexOf('"""', m.index + 3); if (e2 < 0) { inDoc = true; out += '<span class="s">' + esc(t.slice(m.index)) + '</span>'; return out; } out += '<span class="s">' + esc(t.slice(m.index, e2 + 3)) + '</span>'; last = RE.lastIndex = e2 + 3; continue; }
+      var cls = m[1] ? 'c' : m[2] ? 's' : m[3] ? 'k' : m[4] ? 'n' : 'f';
+      out += '<span class="' + cls + '">' + esc(m[0]) + '</span>'; last = RE.lastIndex;
+    }
+    return out + esc(t.slice(last));
+  }
+  el.innerHTML = src.split('\n').map(function (t) { return '<span class="l">' + (line(t) || ' ') + '</span>'; }).join('');
+  var b = document.getElementById('copycode');
+  b.addEventListener('click', function () {
+    var done = function (ok) { b.textContent = ok ? 'Copied' : 'Select and copy'; setTimeout(function () { b.textContent = 'Copy'; }, 1600); };
+    try { navigator.clipboard.writeText(src).then(function () { done(true); }, function () { done(false); }); } catch (e) { done(false); }
+  });
+})();
+</script>
 </body>
 </html>
