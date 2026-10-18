@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rr2.dev: Cloudflare migration, part 2 — notes.rr2.dev</title>
+<meta name="description" content="A leftover from the GoDaddy → Cloudflare migration: Netlify couldn't renew rr2.dev's wildcard TLS certificate. Why it broke, how it was fixed, and how a DNS TXT record proves who owns a domain.">
+<meta name="date" content="2026-10-18">
+<style>
+  html { background: #fff; color: #111; }
+  body { max-width: 38rem; margin: 4rem auto; padding: 0 1.25rem;
+         font: 1rem/1.6 Georgia, 'Times New Roman', serif; }
+  h1 { font-size: 1.5rem; font-weight: normal; margin: 0 0 0.25rem; }
+  h2 { font-size: 1.1rem; font-weight: normal; margin: 1.5rem 0 0.5rem; }
+  hr { border: 0; border-top: 1px solid #111; margin: 1.5rem 0; }
+  a { color: #111; }
+  .meta { font-style: italic; }
+  ul, ol { padding-left: 1.25rem; }
+  code { font-family: 'Courier New', monospace; font-size: 0.95em; }
+</style>
+</head>
+<body>
+<p><strong>TL;DR:</strong> Two days before rr2.dev's TLS certificate was due to expire, Netlify reported that it couldn't renew it. This was a leftover from the <a href="/worklog/godaddy-to-cloudflare-migration/">GoDaddy → Cloudflare migration</a>. Rahul deleted Netlify's old DNS zone and renewed the certificate. It was fixed in a few minutes, with no downtime.</p>
+
+<h2>What broke</h2>
+<p>Netlify's renewal failed with <code>NXDOMAIN looking up TXT for _acme-challenge.rr2.dev</code>.</p>
+<p>Before the migration, Netlify ran rr2.dev's DNS, so it could add the proof record itself and get a wildcard certificate. The migration moved DNS to Cloudflare, but Netlify's old DNS zone stayed behind. Netlify still thought it was in charge, so at renewal time it wrote the proof record into that old zone. Let's Encrypt only checks Cloudflare, so it never found the record. Certificates last 90 days, which is why this only showed up at the first renewal after the move.</p>
+
+<h2>The fix</h2>
+<ol>
+  <li>Deleted the leftover Netlify DNS zone for rr2.dev. Nothing was served from it, so nothing went down.</li>
+  <li>Renewed the certificate in Netlify's HTTPS settings. Without the zone, Netlify gets a separate certificate for each hostname and checks them through the website, which works with Cloudflare as the DNS host.</li>
+  <li>Checked that Cloudflare's records still point to Netlify and that there's no CAA record blocking Let's Encrypt.</li>
+</ol>
+<p>This works on Netlify's free plan.</p>
+
+<h2>How a TXT record proves you own a domain</h2>
+<p>Before Let's Encrypt gives out a certificate, it must check that you control the domain.</p>
+<ul>
+  <li><strong>Who controls a domain:</strong> The registrar points rr2.dev to a set of nameservers. Only the person who can edit those nameservers controls the domain.</li>
+  <li><strong>The test:</strong> Let's Encrypt gives a random code. You must add it as a TXT record at <code>_acme-challenge.rr2.dev</code>. A TXT record is a short piece of text stored in DNS.</li>
+  <li><strong>Why wildcards need this:</strong> A normal certificate is for one name, like <code>rr2.dev</code>. Let's Encrypt can check it by visiting that website. A wildcard certificate (<code>*.rr2.dev</code>) is for every name under rr2.dev, including names you haven't created yet. Let's Encrypt can't visit websites that don't exist. So it checks the one place that controls all those names: DNS. This is how the check works:
+    <ol>
+      <li>Let's Encrypt asks the registrar which nameservers are in charge of rr2.dev. Today, those are Cloudflare's.</li>
+      <li>It asks those nameservers for the TXT record at <code>_acme-challenge.rr2.dev</code>.</li>
+      <li>If the record holds the same random code it gave out, the check passes. Only someone who can edit rr2.dev's DNS could have added that code, and that person controls every name under rr2.dev.</li>
+      <li>Let's Encrypt runs this check from several places on the internet at the same time, so a single faked answer can't trick it.</li>
+    </ol>
+  </li>
+</ul>
+<p>In this case, Netlify added the code to its old DNS zone. The internet now reads DNS from Cloudflare, so the code was never found. <strong>NXDOMAIN</strong> means "this name does not exist."</p>
+<p>Copying the old <code>_acme-challenge</code> record to Cloudflare during the migration wouldn't have helped either. A new random code is created for each renewal, so an old one never works. After the fix, no TXT record is needed at all, because Netlify now checks each hostname through the website.</p>
+
+<h2>Next steps</h2>
+<ul>
+  <li>Add two steps to the DNS migration checklist: delete the old provider's DNS zone, then force a certificate renewal and confirm it works.</li>
+  <li>Add independent certificate expiry monitoring as a backup to Netlify's email (for example UptimeRobot or Cloudflare's certificate alerts).</li>
+</ul>
+</body>
+</html>
