@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>resume.rr2.dev is live — notes.rr2.dev</title>
+<meta name="description" content="I rebuilt my resume as an interactive journey, so I can show people what I've worked on.">
+<meta name="date" content="2026-11-01">
+<style>
+  ul, ol { padding-left: 1.25rem; }
+  li { margin-bottom: 0.4rem; }
+  .launch-video { display: block; width: 100%; height: auto; border-radius: 6px; margin: 1.5rem 0; }
+  .journey-link { display: inline-block; padding: 0.75rem 1.3rem; border-radius: 10px; background: #9A2547; color: #fff !important; border: 0 !important; text-decoration: none !important; font-size: 1.05rem; box-shadow: 0 6px 16px -8px rgba(154,37,71,.6); }
+  .journey-link strong { color: #fff !important; }
+  .journey-link:hover { background: #7E1D3A; }
+  .footnote { margin-top: 3rem; font-size: 0.72rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<p>I turned my resume into a journey. You sign in, and your request travels through the things I've built, run, secured and broken on purpose.</p>
+
+<p><a class="journey-link" href="https://resume.rr2.dev">Take the journey at <strong>resume.rr2.dev</strong> &rarr;</a></p>
+
+<video class="launch-video" controls playsinline preload="metadata" poster="poster.jpg">
+  <source src="resume-launch.mp4" type="video/mp4">
+</video>
+
+<h2>Why I made it</h2>
+<p>At meetups, people often ask what I've worked on. Now I can just show them.</p>
+
+<h2>How I made it</h2>
+<p>I built it with Claude (Opus 5.5). The idea and the design were mine: I'd describe what each slide should show, Claude would suggest a few ways to do it, I'd pick or push back, and Claude built it.</p>
+<ul>
+  <li><strong>The site:</strong> plain HTML, CSS and JavaScript with no framework, hosted on Cloudflare and deployed straight from GitHub.</li>
+  <li><strong>The animations:</strong> each slide has one small animation of the work happening, drawn in code. The world map uses D3.</li>
+  <li><strong>The launch video:</strong> made in code with Remotion. Even the marimba track was generated in code, timed to land on the scene changes.</li>
+</ul>
+
+<h2>What I'd like to add in future</h2>
+<ul>
+  <li>An LLM-powered chat, so visitors can ask about my work.</li>
+  <li>A terminal version over SSH, for people who'd rather type than scroll.</li>
+</ul>
+
+<p class="footnote">Written with help from Claude (Opus 5.5).</p>
+</body>
+</html>
