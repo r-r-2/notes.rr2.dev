@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A launch video for HackerTube — notes.rr2.dev</title>
+<meta name="description" content="Karpathy's HackerTube didn't have a launch video, so I made a 41-second one with Opus, built entirely in code from real Hacker News comments and data from the site.">
+<meta name="date" content="2026-11-02">
+<style>
+  .hv-video { display: block; width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--hair, #e2e5ea); background: #111; }
+</style>
+</head>
+<body>
+<p><strong>TL;DR</strong><br>
+Karpathy shipped HackerTube as a weekend hack: the YouTube videos Hacker News keeps telling each other to watch. It didn't have a launch video, so I made one with Opus. It's a 41-second video built entirely in code, using real HN comments and real data from the site.</p>
+
+<video class="hv-video" controls playsinline preload="metadata" poster="poster.jpg">
+  <source src="hackertube-launch.mp4" type="video/mp4">
+</video>
+
+<h2>Links</h2>
+<ul>
+  <li>HackerTube: <a href="https://hackertube.org">hackertube.org</a></li>
+  <li>Karpathy's post: <a href="https://x.com/karpathy/status/2116957135661945283">x.com/karpathy/status/2116957135661945283</a></li>
+  <li>My post: <a href="https://x.com/rahul_r007/status/2117171379179323605">x.com/rahul_r007/status/2117171379179323605</a></li>
+  <li>Music: <a href="https://pixabay.com/music/upbeat-upbeat-613343/">"Upbeat" by AtlasAudio</a>, from Pixabay</li>
+</ul>
+
+<h2>The idea</h2>
+<p>I wanted the video to show what makes HackerTube different: the recommendations come from people, not from an algorithm guessing what keeps you scrolling.</p>
+<p>So it opens on one real Hacker News thread from 2015. Someone recommends Josh Kaufman's <em>The first 20 hours</em> TED talk, and the first reply is "Yes! I came here to post this exact comment." That one reply is basically the whole idea of HackerTube.</p>
+
+<h2>What's in it</h2>
+<ul>
+  <li><strong>The thread</strong>, rebuilt to look like real HN.</li>
+  <li><strong>A timeline</strong> of every time that talk was recommended, from 2014 to 2023, each one in a completely different thread.</li>
+  <li><strong>A comparison</strong> of how other favourite talks keep getting recommended year after year.</li>
+  <li><strong>43 million comments distilled into 6,454 videos</strong>, shown as a wall of real thumbnails.</li>
+  <li><strong>The site itself:</strong> each video's page lists who recommended it and where, plus categories, playlists and Longs.</li>
+</ul>
+
+<h2>How it was made</h2>
+<ul>
+  <li>Everything is code. The video is HTML and CSS animated with GSAP, then rendered to MP4 with HyperFrames.</li>
+  <li>Every comment, date and count is real. Claude read them from HackerTube's own data through the browser, and checked a few against the original HN threads.</li>
+</ul>
+
+<h2>What I learned</h2>
+<ul>
+  <li><strong>Readability beats cleverness.</strong> The first versions had a moving timeline and comment cards that flew past too fast to read. The version that worked is still, with fewer, bigger words.</li>
+  <li><strong>Small wording matters.</strong> Captions that sounded fine were sometimes wrong. "Browse by topic, not by feed" isn't true, because the site has a feed. So every line got checked against the actual site.</li>
+  <li><strong>Music is still hard to do in code.</strong> Claude generated four soundtracks, from synth to marimba to keys, and none of them felt right. A real track from Pixabay, cut so its lift lands on the "6,454" moment, worked first try.</li>
+  <li><strong>Iterating out loud works.</strong> Almost every good decision came from me saying "this feels weird" and working out why before building anything.</li>
+</ul>
+
+</body>
+</html>
