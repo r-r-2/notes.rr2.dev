@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A design system my AI agents can read — notes.rr2.dev</title>
+<meta name="description" content="I gathered the shared look of rr2.dev, notes and resume into one design system at design.rr2.dev, written for AI coding agents first.">
+<meta name="date" content="2026-11-03">
+<style>
+  ul, ol { padding-left: 1.25rem; }
+  li { margin-bottom: 0.4rem; }
+  .site-link { display: inline-block; padding: 0.75rem 1.3rem; border-radius: 10px; background: #a8325e; color: #fff !important; border: 0 !important; box-shadow: 0 6px 16px -8px rgba(168,50,94,.6) !important; text-decoration: none !important; font-size: 1.05rem; }
+  .site-link strong { color: #fff !important; }
+  .site-link:hover { background: #8f2950; }
+  .code-link { margin-top: -0.75rem; font-size: 0.9rem; color: var(--muted); }
+  .footnote { margin-top: 3rem; font-size: 0.72rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<p>I don't write UI code myself anymore; agents do. Today I put the look my sites share in one place an agent can read.</p>
+
+<p><a class="site-link" href="https://design.rr2.dev">See it at <strong>design.rr2.dev</strong> &rarr;</a></p>
+
+<p class="code-link">Code: <a href="https://github.com/r-r-2/design">github.com/r-r-2/design</a></p>
+
+<h2>Why I made it</h2>
+<p>Each new site borrows from the ones before it. notes took its look from rr2.dev, and resume took its header from notes. I want that to stay easy, so the parts they share now live in one place, and the next site can start from there.</p>
+
+<h2>What's in it</h2>
+<ul>
+  <li><strong>Two colours from my profile photo.</strong> Raspberry from the shirt, slate from the sky, on grey paper with dark ink. Fraunces for headings, Instrument Sans for reading.</li>
+  <li><strong>A DESIGN.md for agents.</strong> It follows Google's new DESIGN.md format: the tokens at the top, then the rules and the exact markup for 24 components. An agent reads it and copies from it instead of guessing.</li>
+  <li><strong>Versioned CSS.</strong> Sites link to <code>/personal/v1/</code>, so a later change can't break them.</li>
+  <li><strong>A checker.</strong> A small script the agent runs after building. It flags hard-coded colours, made-up class names, and more than one main button on a page. The design site passes its own check.</li>
+  <li><strong>Review pages for me.</strong> Live previews in light and dark, with the HTML next to each one.</li>
+</ul>
+
+<p class="footnote">Written with help from Claude (Opus 5.5).</p>
+</body>
+</html>
