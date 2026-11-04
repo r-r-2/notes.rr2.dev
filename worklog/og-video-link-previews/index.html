@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moving link previews for my sites with og:video — notes.rr2.dev</title>
+<meta name="description" content="When you share a link to one of my sites, the preview plays a short video. This page shows how the og:video tag does this.">
+<meta name="date" content="2026-11-04">
+<style>
+  :root { --hair: #e2ded6; --panel: #f6f4ef; --muted: #6b665f; --rust: #a6532c; }
+  .og-thread { max-width: 24rem; margin: 1.25rem auto 0.5rem; padding: 1rem 0.9rem 1.1rem; border-radius: 22px;
+               background: #fff; border: 1px solid var(--hair); box-shadow: 0 10px 30px rgba(30, 30, 40, .07);
+               font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; }
+  .og-thread { height: 32rem; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+               -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 3rem), transparent);
+                       mask-image: linear-gradient(to bottom, #000 calc(100% - 3rem), transparent);
+               padding-bottom: 3rem; }
+  .og-thread .og-to { text-align: center; font-size: 0.72rem; color: #8a8a8e; margin: 0 0 0.9rem; }
+  .og-msg { display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem; margin-bottom: 0.9rem; }
+  .og-bubble { background: #1f7cf6; color: #fff; padding: 0.42rem 0.8rem; border-radius: 18px; font-size: 0.92rem;
+               line-height: 1.35; max-width: 80%; }
+  .og-card { width: 82%; border-radius: 16px; overflow: hidden; background: #e9e9eb; color: #111; text-decoration: none; display: block; }
+  .og-thread a.og-card, .og-thread a.og-card:hover { border: 0 !important; box-shadow: none !important; text-decoration: none !important; background-image: none !important; }
+  .og-card video { width: 100%; aspect-ratio: 16 / 9; display: block; object-fit: cover; background: #d9d9de; }
+  .og-card .og-meta { padding: 0.5rem 0.75rem 0.6rem; }
+  .og-card .og-title { font-size: 0.85rem; font-weight: 600; line-height: 1.25; }
+  .og-card .og-host { font-size: 0.75rem; color: #6e6e73; margin-top: 0.1rem; }
+  .og-note { text-align: center; font-size: 0.85rem; color: var(--muted); margin: 0.4rem 0 1.25rem; }
+  .og-table { width: 100%; border-collapse: collapse; font-size: 0.93rem; margin: 0.75rem 0 1rem; }
+  .og-table th, .og-table td { text-align: left; padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--hair); vertical-align: top; }
+  .og-table th { font-weight: 600; }
+  .og-yes { color: #2f7a4a; font-weight: 600; }
+  .og-no { color: var(--muted); }
+  .og-code { background: var(--panel); border: 1px solid var(--hair); border-radius: 6px; padding: 0.8rem 1rem;
+             font: 0.82rem/1.55 'SF Mono', Menlo, Consolas, monospace; overflow-x: auto; white-space: pre; }
+</style>
+</head>
+<body>
+<p>TIL about the <code>og:video</code> Open Graph tag. With it, a link preview can play a short video. I added it to my sites. Now, when I share a link to one of my sites, the preview shows a short video with no sound.</p>
+
+<h2>Live demo</h2>
+<div class="og-thread" aria-label="Mockup of a Messages thread with link previews">
+  <p class="og-to">Today 5:12 PM</p>
+  <div class="og-msg">
+    <div class="og-bubble">Made my sites’ link previews move today</div>
+    <div class="og-bubble">Every phone I’ve owned, on one showroom table</div>
+    <a class="og-card" href="https://phones.rr2.dev">
+      <video muted loop playsinline preload="none" poster="https://phones.rr2.dev/og-image.jpg"><source src="https://phones.rr2.dev/og-video.mp4" type="video/mp4"></video>
+      <div class="og-meta"><div class="og-title">My Phone Showroom</div><div class="og-host">phones.rr2.dev</div></div>
+    </a>
+  </div>
+  <div class="og-msg">
+    <div class="og-bubble">The books float now</div>
+    <a class="og-card" href="https://readingroom.rr2.dev">
+      <video muted loop playsinline preload="none" poster="https://readingroom.rr2.dev/og-image.jpg"><source src="https://readingroom.rr2.dev/og-video.mp4" type="video/mp4"></video>
+      <div class="og-meta"><div class="og-title">The Reading Room</div><div class="og-host">readingroom.rr2.dev</div></div>
+    </a>
+  </div>
+  <div class="og-msg">
+    <div class="og-bubble">My resume, in 10 seconds</div>
+    <a class="og-card" href="https://resume.rr2.dev">
+      <video muted loop playsinline preload="none" poster="https://resume.rr2.dev/og.png"><source src="https://resume.rr2.dev/og-video.mp4" type="video/mp4"></video>
+      <div class="og-meta"><div class="og-title">Rahul Ravikumar · Interactive resume</div><div class="og-host">resume.rr2.dev</div></div>
+    </a>
+  </div>
+  <div class="og-msg">
+    <div class="og-bubble">Where the worklogs live</div>
+    <a class="og-card" href="https://notes.rr2.dev">
+      <video muted loop playsinline preload="none" poster="https://notes.rr2.dev/og-image.jpg"><source src="https://notes.rr2.dev/og-video.mp4" type="video/mp4"></video>
+      <div class="og-meta"><div class="og-title">notes.rr2.dev</div><div class="og-host">notes.rr2.dev</div></div>
+    </a>
+  </div>
+  <div class="og-msg">
+    <div class="og-bubble">And the homepage says hi</div>
+    <a class="og-card" href="https://rr2.dev">
+      <video muted loop playsinline preload="none" poster="https://rr2.dev/og-image.jpg"><source src="https://rr2.dev/og-video.mp4" type="video/mp4"></video>
+      <div class="og-meta"><div class="og-title">rr2.dev</div><div class="og-host">rr2.dev</div></div>
+    </a>
+  </div>
+</div>
+<p class="og-note">This is a mockup of a Messages thread. Scroll the thread to see all the cards. Each card plays the real video from that site.</p>
+<script>
+  // Play a card only while it is visible in the thread, as Messages does. The videos stay muted.
+  (function () {
+    var vids = document.querySelectorAll('.og-card video');
+    if (!('IntersectionObserver' in window)) { vids.forEach(function (v) { v.play && v.play().catch(function () {}); }); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.play().catch(function () {}); } else { e.target.pause(); } });
+    }, { root: document.querySelector('.og-thread'), threshold: 0.6 });
+    vids.forEach(function (v) { io.observe(v); });
+  })();
+</script>
+
+
+<p>The resume card uses these tags on <a href="https://resume.rr2.dev">resume.rr2.dev</a>:</p>
+<div class="og-code">&lt;meta property="og:image" content="https://resume.rr2.dev/og.png"&gt;
+&lt;meta property="og:video" content="https://resume.rr2.dev/og-video.mp4"&gt;
+&lt;meta property="og:video:type" content="video/mp4"&gt;
+&lt;meta property="og:video:width" content="1280"&gt;
+&lt;meta property="og:video:height" content="720"&gt;</div>
+<p>To test a preview, send a URL such as <code>https://rr2.dev/?v=1</code> in a chat. The <code>?v=1</code> part stops the app from using an old preview.</p>
+
+<h2>Apps that play the video</h2>
+<ul>
+  <li><strong>Play the video:</strong> Messages, Discord, Telegram and Slack. Messages starts the video without sound and repeats it.</li>
+  <li><strong>Show only the image:</strong> X, LinkedIn, Facebook and WhatsApp.</li>
+</ul>
+<p>Each site has an <code>og:video</code> tag for the chat apps. Each site also has an <code>og:image</code> tag for all other apps.</p>
+
+<h2>How I made the videos</h2>
+<ul>
+  <li><strong>Phones and Reading Room:</strong> I recorded the real 3D sites, one frame at a time.</li>
+  <li><strong>Resume and notes:</strong> I cut short parts from their launch videos.</li>
+  <li><strong>rr2.dev:</strong> I made a new animation of my avatar.</li>
+</ul>
+<p>All videos are 1280×720 and have no sound. The sizes are from 132 KB (rr2.dev) to 3.3 MB (Reading Room).</p>
+</body>
+</html>
