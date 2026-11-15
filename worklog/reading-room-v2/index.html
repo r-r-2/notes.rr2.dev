@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Reading Room, v2 — notes.rr2.dev</title>
+<meta name="description" content="The Reading Room rebuilt: Google Gemini Carbon 4 started it, Claude Opus 5.5 finished it, with real light, weather that follows your clock, and a test tool for the next rewrite.">
+<meta name="date" content="2026-11-15">
+<style>
+  html { background: #fff; color: #111; }
+  body { max-width: 38rem; margin: 4rem auto; padding: 0 1.25rem;
+         font: 1rem/1.6 Georgia, 'Times New Roman', serif; }
+  h2 { font-size: 1.1rem; font-weight: normal; margin: 1.5rem 0 0.5rem; }
+  a { color: #111; }
+  ul { padding-left: 1.25rem; }
+  li { margin-bottom: 0.4rem; }
+  code { font-family: 'Courier New', monospace; font-size: 0.95em; }
+  video { display: block; width: 100%; height: auto; border: 1px solid #111; background: #111; }
+</style>
+</head>
+<body>
+<p><a href="https://readingroom.rr2.dev">The Reading Room</a> is a 3D room that holds the books I've read. Google Gemini Carbon 4 started the rebuild, adding real materials, shadows and a 3D window. When I hit my Gemini limits, Claude Opus 5.5 finished the job in Claude Code, with Fable 5.1 advising on the bigger calls. The old room still lives at <a href="https://readingroom.rr2.dev/v1.html">/v1.html</a>.</p>
+
+<video controls playsinline preload="metadata" poster="poster.jpg">
+  <source src="reading-room-v2.mp4" type="video/mp4">
+</video>
+
+<h2>Links</h2>
+<ul>
+  <li>Room: <a href="https://readingroom.rr2.dev">readingroom.rr2.dev</a></li>
+  <li>Repo: <a href="https://github.com/r-r-2/thereadingroom">github.com/r-r-2/thereadingroom</a></li>
+  <li>Music: "Relax" by prettyjohn1, from Pixabay</li>
+</ul>
+
+<h2>What changed</h2>
+<ul>
+  <li>The window follows your clock: golden hour by day, and rain, a moon and the odd lightning flash at night.</li>
+  <li>Every glow at night now comes from a lamp you can see. The wood is warmer and the posters brighter.</li>
+  <li>Click a book and it glides up to you. Table books finally lie cover-up.</li>
+  <li>You walk in through the door, and the room starts on the fast setting so phones keep up.</li>
+</ul>
+
+<h2>A test tool</h2>
+<p><code>/verify-room</code> runs 12 checks in headless Chrome and reports only what fails. Its second mode made this video: it films both rooms frame by frame in sync, and ffmpeg stacks them together.</p>
+
+<h2>What took a few rounds</h2>
+<p>Mirrored table covers, a window crowded with trees, and two glitches in the video.</p>
+
+<h2>What I learnt</h2>
+<ul>
+  <li><strong>Say "talk to me first".</strong> When I didn't, Claude once built a bigger feature than I wanted, and we had to undo it.</li>
+  <li><strong>A rewrite quietly breaks things that used to work.</strong> A test I can run on demand catches them, and putting old bugs back in proved it works.</li>
+  <li><strong>Switching models mid-project was painless.</strong> The repo's notes (<code>AGENTS.md</code> and <code>GOTCHAS.md</code>) carried the context from Gemini to Claude.</li>
+  <li><strong>Less was better.</strong> Removing the mist, the dust and most of the trees made the room look more real.</li>
+  <li><strong>Headless tests miss things.</strong> The black blocks and the stuck mouse only showed up in my own browser.</li>
+</ul>
+</body>
+</html>
