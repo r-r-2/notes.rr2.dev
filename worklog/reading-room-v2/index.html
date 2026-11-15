@@ -22,7 +22,9 @@
   ul { padding-left: 1.25rem; }
   li { margin-bottom: 0.4rem; }
   code { font-family: 'Courier New', monospace; font-size: 0.95em; }
-  video { display: block; width: 100%; height: auto; border: 1px solid #111; background: #111; }
+  /* Portrait 4:5 video: fit within 75% of the window height, centred */
+  .reel { display: block; aspect-ratio: 4 / 5; width: min(100%, calc(75vh * 4 / 5)); height: auto;
+          margin: 1rem auto; border: 1px solid #111; background: #111; }
 </style>
 <!-- nr:head:start -->
 <link rel="icon" href="/favicon.ico" sizes="any">
@@ -39,7 +41,7 @@
 <!-- nr:top:end -->
 <p><a href="https://readingroom.rr2.dev">The Reading Room</a> is a 3D room that holds the books I've read. Google Gemini Carbon 4 started the rebuild, adding real materials, shadows and a 3D window. When I hit my Gemini limits, Claude Opus 5.5 finished the job in Claude Code, with Fable 5.1 advising on the bigger calls. The old room still lives at <a href="https://readingroom.rr2.dev/v1.html">/v1.html</a>.</p>
 
-<video controls playsinline preload="metadata" poster="poster.jpg">
+<video class="reel" controls playsinline preload="metadata" poster="poster.jpg">
   <source src="reading-room-v2.mp4" type="video/mp4">
 </video>
 
