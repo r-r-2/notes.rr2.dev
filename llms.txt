@@ -28,7 +28,7 @@ Static-site collection of LLM-agent notes, maintained by Rahul. Repo `r-r-2/note
   gtag('config', 'G-2QQWNZ1TJ4');
 </script>
 ```
-4. Never touch `CNAME`, `.nojekyll`, `robots.txt`, `llms.txt`, `index.html`, `404.html`, `research/index.html`, `learning/index.html`, `worklog/index.html`, `assets/`, `favicon.ico`, `.github/scripts/` (the homepage, section lists, site design and each entry's header and "Recently on" block regenerate automatically via a GitHub Action). Never commit tokens/secrets.
+4. Never touch `CNAME`, `.nojekyll`, `robots.txt`, `llms.txt`, `index.html`, `404.html`, `sitemap.xml`, `research/index.html`, `learning/index.html`, `worklog/index.html`, `assets/`, `favicon.ico`, `.github/scripts/` (the homepage, section lists, site design and each entry's header and "Recently on" block regenerate automatically via a GitHub Action). Never commit tokens/secrets.
 
 ## Unlisted artifacts
 

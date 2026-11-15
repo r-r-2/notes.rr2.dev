@@ -30,7 +30,8 @@ by Arnav Gupta.
 - every entry page, between its `<!-- nr:head:… -->`, `<!-- nr:top:… -->` and `<!-- nr:bottom:… -->` markers: the inlined design, the site header, the title block (title, description, date, reading time, section), the "Recently on notes" cards, the guide and the footer. The entry's own content between the markers is never touched;
 - the `research/`, `learning/` and `worklog/` section pages, whole;
 - the homepage's Recent posts carousel and month-by-month archive (between `<!-- nr:home:… -->`), plus its head, header and footer;
-- the header and footer of `404.html`.
+- the header and footer of `404.html`;
+- `sitemap.xml`: the homepage, non-empty section pages and every entry (never `unlisted/`). `<lastmod>` is each entry's `<meta name="date">`, i.e. its publish date, not its last edit.
 
 Don't hand-edit inside those markers. To regenerate locally: `python3 .github/scripts/update-listings.py`. Running it twice changes nothing.
 

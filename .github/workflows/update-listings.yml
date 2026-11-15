@@ -4,6 +4,7 @@ name: update-listings
 # - section pages (research/index.html, learning/index.html, worklog/index.html)
 # - homepage carousel and archive (index.html), and the 404 page's header/footer
 # - every entry's inlined design, header, title block and "Recently on notes" cards
+# - sitemap.xml
 # New research/<slug>/, learning/<slug>/, or worklog/<slug>/ dirs get picked up here.
 #
 # The bot's own push uses GITHUB_TOKEN, which does not trigger workflows, so
@@ -65,6 +66,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A research learning worklog index.html 404.html
+          git add -A research learning worklog index.html 404.html sitemap.xml
           git diff --cached --quiet || git commit -m "chore(listings): regenerate pages, homepage and section lists"
           git push
