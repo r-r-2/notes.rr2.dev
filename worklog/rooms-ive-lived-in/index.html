@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rooms I've lived in — notes.rr2.dev</title>
+<meta name="description" content="Before moving out of a short-term rental, I scanned it with my iPhone and rebuilt it in 3D as a site you can walk through.">
+<meta name="date" content="2026-11-23">
+<style>
+  html { background: #fff; color: #111; }
+  body { max-width: 38rem; margin: 4rem auto; padding: 0 1.25rem;
+         font: 1rem/1.6 Georgia, 'Times New Roman', serif; }
+  h2 { font-size: 1.1rem; font-weight: normal; margin: 1.5rem 0 0.5rem; }
+  a { color: #111; }
+  ul { padding-left: 1.25rem; }
+  li { margin-bottom: 0.4rem; }
+  video { display: block; width: 100%; height: auto; border: 1px solid #111; background: #111; }
+</style>
+</head>
+<body>
+<p>Before moving out of a short-term rental, I scanned it with my iPhone and rebuilt it in 3D. You can walk through it, open the doors and switch on the lights at <a href="https://rooms.rr2.dev">rooms.rr2.dev</a>.</p>
+
+<video controls playsinline preload="metadata" poster="poster.jpg">
+  <source src="rooms-launch.mp4" type="video/mp4">
+</video>
+
+<h2>Links</h2>
+<ul>
+  <li>Site: <a href="https://rooms.rr2.dev">rooms.rr2.dev</a></li>
+  <li>Repo: <a href="https://github.com/r-r-2/rooms">github.com/r-r-2/rooms</a></li>
+  <li>Music: <a href="https://pixabay.com/music/trap-trap-banger-591329/">"Trap Banger" by Alex Morgan</a>, from Pixabay</li>
+</ul>
+
+<h2>How it came together</h2>
+<ul>
+  <li>I scanned it with Scaniverse, a free app that uses the iPhone's LiDAR sensor.</li>
+  <li>The raw scan was too heavy for a phone browser, so I used it as a reference. Claude wrote a Three.js model from simple boxes, and I checked each room against the scan and sent corrections.</li>
+  <li>Most of the time went into details: sliding doors, the glass partition, floor-length blinds, the balcony grill and a mirrored almirah.</li>
+</ul>
+
+<h2>What you can do</h2>
+<ul>
+  <li>Look at it from above, take a one-minute walkthrough, or walk around yourself.</li>
+  <li>Doors, lights, curtains, blinds, the fridge and the TV all work.</li>
+  <li>Turn on room sound (fridge hum, AC, traffic), all generated in code.</li>
+</ul>
+
+<h2>Stack</h2>
+<ul>
+  <li>Three.js with no build step.</li>
+  <li>Hosted on Cloudflare Pages, deployed from GitHub.</li>
+  <li>Cookieless Google Analytics.</li>
+  <li>The launch video is filmed from the site frame by frame and cut to the beat in HyperFrames. It ends on the end card from my design system.</li>
+</ul>
+<p>I did most of this from the Claude app on my phone, while travelling and walking around a mall. I used Claude Opus 5.5 for all of it.</p>
+
+<h2>Next</h2>
+<ul>
+  <li>More places whose layout I like: homes, Airbnbs and hotel rooms.</li>
+  <li>My ancestral home. It's already been demolished, and I couldn't scan it back then: my iPhone 13 mini had no LiDAR sensor (the iPhone 17 Pro I used here does). So I'll rebuild it from an old video instead.</li>
+</ul>
+</body>
+</html>
