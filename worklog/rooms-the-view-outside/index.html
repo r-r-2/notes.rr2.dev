@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2QQWNZ1TJ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2QQWNZ1TJ4');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rooms: the view outside — notes.rr2.dev</title>
+<meta name="description" content="The rental on rooms.rr2.dev now has the real city outside its windows, and the camera glides between views.">
+<meta name="date" content="2026-11-25">
+<style>
+  .shot { display: block; width: 100%; height: auto; margin: 0 0 8px; border: 1px solid var(--hair); border-radius: 6px; }
+  .shots { margin: 0 0 20px; }
+  :root { --hair: #e2e5ea; }
+</style>
+</head>
+<body>
+<p><strong>TL;DR:</strong> The rental on <a href="https://rooms.rr2.dev/rental/">rooms.rr2.dev</a> now has the real city outside its windows, built from open map data, with four times of day and a tall building that lights up at night. The camera glides between views instead of cutting, the walkthrough shows each room whole, and the kitchen blinds match the scan.</p>
+
+<h2>New</h2>
+<ul>
+  <li><strong>Real view outside:</strong> buildings, roads, trees and the skytrain, from open map data.</li>
+  <li><strong>Four times of day:</strong> morning, midday, sunset and night. At sunset the glass towers catch the sun.</li>
+  <li><strong>Tall building lights up at night:</strong> tap it for five lighting patterns, based on my photos.</li>
+</ul>
+<div class="shots">
+  <img class="shot" src="sunset.jpg" alt="The view from the balcony at sunset" width="1200" height="800" loading="lazy">
+  <img class="shot" src="night.jpg" alt="The same view at night, with the city lit up" width="1200" height="800" loading="lazy">
+  <img class="shot" src="looks.jpg" alt="The tall building's five lighting patterns side by side" width="1532" height="680" loading="lazy">
+</div>
+
+<h2>Smoother</h2>
+<ul>
+  <li><strong>Camera moves:</strong> it flies between views instead of cutting, in about a second.</li>
+  <li><strong>Walkthrough:</strong> Next room fast-forwards along the route.</li>
+  <li><strong>Wider walkthrough view:</strong> a wider lens on phones, and stops moved back, so you see each room whole.</li>
+</ul>
+
+<h2>Closer to the scan</h2>
+<ul>
+  <li><strong>Kitchen blinds:</strong> warm cream slats with brown ladder tapes, matched to the scan.</li>
+</ul>
+
+<h2>Under the hood</h2>
+<ul>
+  <li><strong>Map data:</strong> Overture tiles decoded in the browser, with positions stored in metres and no coordinates in the code.</li>
+  <li><strong>Flicker fix:</strong> a logarithmic depth buffer, since the camera sees from 5 cm to 5 km.</li>
+  <li><strong>Route check:</strong> a script makes sure the walkthrough path never clips walls or furniture.</li>
+</ul>
+
+<p><strong>Also:</strong> new ACs, footsteps, and the page moved to /rental/, with old links redirecting.</p>
+</body>
+</html>
